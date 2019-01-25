@@ -12,4 +12,4 @@ python webcam_demo.py --cam_id '20190116001838.mp4' --model=0
 
 
 # 3. OPENPOSE BASE DETECTION TEST:
-[Installation](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/installation.md#operating-systems)
+[Installation](https://github.com/CMU-Perceptual-Computing-Lab/openpose/blob/master/doc/nstallation.md#operating-systems)
