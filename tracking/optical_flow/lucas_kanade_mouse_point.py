@@ -27,6 +27,7 @@ cv2.setMouseCallback("Frame", select_point)
 point_selected = False
 point = ()
 old_points = np.array([[]])
+track_point = np.array([[]])
 while True:
     _, frame = cap.read()
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -37,25 +38,12 @@ while True:
         new_points, status, error = cv2.calcOpticalFlowPyrLK(old_gray, gray_frame, old_points, None, **lk_params)
         old_gray = gray_frame.copy()
         old_points = new_points
-
+        track_point.append(new_points)
+        print(track_point)
         x, y = new_points.ravel()
         cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)
 
-        # Select good points
-        good_new = new_points[st==1]
-        good_old = old_points[st==1]
-
-        # draw the tracks
-        for i,(new,old) in enumerate(zip(good_new,good_old)):
-            a,b = new.ravel()
-            c,d = old.ravel()
-            mask = cv2.line(mask, (a,b),(c,d), color[i].tolist(), 2)
-            frame = cv2.circle(frame,(a,b),5,color[i].tolist(),-1)
-
-        img = cv2.add(frame,mask)
-
-
-    cv2.imshow("Frame", img)
+    cv2.imshow("Frame", frame)
 
     key = cv2.waitKey(1)
     if key == 27:
