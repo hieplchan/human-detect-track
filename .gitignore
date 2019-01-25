@@ -1,2 +1,4 @@
 CCTV_Data/
 Output/
+detection/openpose/
+detection/densepose/
