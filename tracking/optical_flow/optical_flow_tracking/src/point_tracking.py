@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from optical_flow_tracking.ultil.params import *
+from optical_flow_tracking.utils.params import *
 
 if __name__ == '__main__':
     cap = cv2.VideoCapture(VIDEO_PATH + VIDEO_NAME)
