@@ -10,9 +10,9 @@ def mouse_select(event, x, y, flags, params):
     if event == cv2.EVENT_LBUTTONDOWN:
         points_origin.append([x, y])
         # print(str(x) + ":" + str(y))
-        for point in points_origin:
-            cv2.circle(frame, (point[0], point[1]), 5, (0, 0, 255), -1)
-            cv2.imshow("CCTV", frame)
+        # for point in points_origin:
+        cv2.circle(frame, (x, y), 5, (0, 0, 255), -1)
+        cv2.imshow("CCTV", frame)
 
 """ MAIN FUNCTION """
 # Mouse function

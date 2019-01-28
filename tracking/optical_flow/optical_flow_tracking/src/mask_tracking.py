@@ -2,17 +2,17 @@ from optical_flow_tracking.utils.params import *
 
 """ VARIABLE DEFINITION """
 # Tracking point
-points_origin = []
+mask = np.zeros((1080,1920,1), np.uint8)
 
 """ COMMON FUNCTION """
 # Mouse function
 def mouse_select(event, x, y, flags, params):
     if event == cv2.EVENT_LBUTTONDOWN:
-        points_origin.append([x, y])
-        print(str(x) + ":" + str(y))
-        for point in points_origin:
-            cv2.circle(frame, (point[0], point[1]), 5, (0, 0, 255), -1)
-            cv2.imshow("CCTV", frame)
+        cv2.rectangle(mask, (x - TRIANGLE_WIDE,y - TRIANGLE_WIDE),(x + TRIANGLE_WIDE,y + TRIANGLE_WIDE), 255, -1)
+        overlay_image = cv2.addWeighted(gray_frame,1,mask,0.8,0)
+        cv2.imshow('CCTV', overlay_image)
+
+# From none zero point to mask
 
 """ MAIN FUNCTION """
 # Mouse function
@@ -28,6 +28,8 @@ if __name__ == '__main__':
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     while(True):
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            points_origin = cv2.findNonZero(mask)
+            print(points_origin.shape)
             points_origin = np.array(points_origin, dtype=np.float32)
             points_old = points_origin.copy()
             print(points_origin.shape)
@@ -43,14 +45,17 @@ if __name__ == '__main__':
         points_new, status, error = cv2.calcOpticalFlowPyrLK(old_gray_frame, gray_frame, points_old, None, **lk_params)
         points_old = points_new.copy()
 
-        print(points_old)
+        # print(points_old.shape)
 
+        # mask = np.zeros((1080,1920,1), np.uint8)
         # for point in points_new:
         #     x, y = point.ravel()
-        #     cv2.circle(frame, (x,y) ,5, (0, 0, 255), -1)
-        #     cv2.imshow("CCTV", frame)
+        #     print(str(x) + ":" + str(y))
+        #     mask[int(y), int(x)] = 255
+        #
+        # overlay_image = cv2.addWeighted(gray_frame,1,mask,0.8,0)
+        cv2.imshow("CCTV", gray_frame)
 
-        cv2.imshow("CCTV", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
