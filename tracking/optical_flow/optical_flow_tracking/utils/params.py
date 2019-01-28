@@ -1,10 +1,15 @@
 import numpy as np
+import logging
 import time
 import cv2
+import os
+
+from optical_flow_tracking import ROOT_DIR
 
 """ LOGGING PARAMS """
-from optical_flow_tracking import LOG_DIR
-import logging
+LOG_DIR = ROOT_DIR + '/log/'
+if os.path.exists(LOG_DIR + 'process_time_log.csv'):
+  os.remove(LOG_DIR + 'process_time_log.csv')
 logger = logging.getLogger('process_time')
 logger.setLevel(logging.DEBUG)
 # Process tiem logger
@@ -14,8 +19,11 @@ process_time_log_handle.setFormatter(logging.Formatter('%(asctime)s,%(name)s,%(l
 logger.addHandler(process_time_log_handle)
 
 """ VIDEO PARAMS """
-VIDEO_NAME = "1.mp4"
-VIDEO_PATH = "/media/hiep/DATA/Working/Tracking_CCTV/CCTV_Data/Video/"
+CAM_WIDTH = 1920
+CAM_HEIGHT = 1080
+VIDEO_NAME = '2.mp4'
+VIDEO_PATH = '/media/hiep/DATA/Working/Tracking_CCTV/CCTV_Data/Video/'
+OUTPUT_VIDEO_PATH = ROOT_DIR + '/output/'
 
 """ LUCAS KANADE PARAMS """
 # Lucas kanade params

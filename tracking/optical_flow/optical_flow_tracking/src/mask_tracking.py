@@ -9,7 +9,7 @@ points_origin = []
 def mouse_select(event, x, y, flags, params):
     if event == cv2.EVENT_LBUTTONDOWN:
         points_origin.append([x, y])
-        # print(str(x) + ":" + str(y))
+        print(str(x) + ":" + str(y))
         for point in points_origin:
             cv2.circle(frame, (point[0], point[1]), 5, (0, 0, 255), -1)
             cv2.imshow("CCTV", frame)
@@ -21,8 +21,6 @@ if __name__ == '__main__':
     cap = cv2.VideoCapture(VIDEO_PATH + VIDEO_NAME)
     cv2.namedWindow("CCTV")
     cv2.setMouseCallback("CCTV", mouse_select)
-    print(OUTPUT_VIDEO_PATH + VIDEO_NAME)
-    video = cv2.VideoWriter(OUTPUT_VIDEO_PATH + VIDEO_NAME, cv2.VideoWriter_fourcc(*'MP4V'), 30,(CAM_WIDTH,CAM_HEIGHT))
 
     # Point selection
     ret, frame = cap.read()
@@ -32,7 +30,7 @@ if __name__ == '__main__':
         if cv2.waitKey(1) & 0xFF == ord('q'):
             points_origin = np.array(points_origin, dtype=np.float32)
             points_old = points_origin.copy()
-            # print(points_origin.shape)
+            print(points_origin.shape)
             break
 
     # Lucas Kanade Tracking
@@ -45,18 +43,16 @@ if __name__ == '__main__':
         points_new, status, error = cv2.calcOpticalFlowPyrLK(old_gray_frame, gray_frame, points_old, None, **lk_params)
         points_old = points_new.copy()
 
-        # print(points_old)
+        print(points_old)
 
-        for point in points_new:
-            x, y = point.ravel()
-            cv2.circle(frame, (x,y) ,5, (0, 0, 255), -1)
-            cv2.imshow("CCTV", frame)
+        # for point in points_new:
+        #     x, y = point.ravel()
+        #     cv2.circle(frame, (x,y) ,5, (0, 0, 255), -1)
+        #     cv2.imshow("CCTV", frame)
 
         cv2.imshow("CCTV", frame)
-        video.write(frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     cap.release()
-    video.release()
     cv2.destroyAllWindows()
