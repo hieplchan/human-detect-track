@@ -6,6 +6,8 @@ import torch
 
 import posenet
 
+import datetime
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--model', type=int, default=101)
@@ -36,9 +38,19 @@ def main():
 
         with torch.no_grad():
             # input_image = torch.Tensor(input_image).cuda()
-            input_image = torch.Tensor(input_image).cpu()
 
+            start_time = datetime.datetime.utcnow().timestamp()
+            input_image = torch.Tensor(input_image).cpu()
             heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
+            stop_time = datetime.datetime.utcnow().timestamp()
+
+            print('--------------------')
+            print((stop_time - start_time)*1000)
+            print(heatmaps_result.squeeze(0).shape)
+            print(heatmaps_result.squeeze(0).shape)
+            print(heatmaps_result.squeeze(0).shape)
+            print(heatmaps_result.squeeze(0).shape)
+            print('--------------------')
 
             pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multiple_poses(
                 heatmaps_result.squeeze(0),
