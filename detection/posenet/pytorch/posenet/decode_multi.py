@@ -68,9 +68,16 @@ def decode_multiple_poses(
     part_scores = part_scores.cpu().numpy()
     part_idx = part_idx.cpu().numpy()
 
+    print('------------')
+    print(part_scores)
+    print(part_idx)
+
     scores = scores.cpu().numpy()
-    height = scores.shape[1]
-    width = scores.shape[2]
+    height = scores.shape[1] #68
+    width = scores.shape[2] #121
+    print(height)
+    print(width)
+
     # change dimensions from (x, h, w) to (x//2, h, w, 2) to allow return of complete coord array
     offsets = offsets.cpu().numpy().reshape(2, -1, height, width).transpose((1, 2, 3, 0))
     displacements_fwd = displacements_fwd.cpu().numpy().reshape(2, -1, height, width).transpose((1, 2, 3, 0))

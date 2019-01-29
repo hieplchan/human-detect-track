@@ -20,8 +20,8 @@ args = parser.parse_args()
 
 def main():
     model = posenet.load_model(args.model)
-    # model = model.cuda()
-    model = model.cpu()
+    model = model.cuda()
+    #model = model.cpu()
     output_stride = model.output_stride
 
     if args.output_dir:
@@ -37,20 +37,12 @@ def main():
             f, scale_factor=args.scale_factor, output_stride=output_stride)
 
         with torch.no_grad():
-            # input_image = torch.Tensor(input_image).cuda()
+            #input_image = torch.Tensor(input_image).cuda()
 
             start_time = datetime.datetime.utcnow().timestamp()
-            input_image = torch.Tensor(input_image).cpu()
+            input_image = torch.Tensor(input_image).cuda()
             heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
-            stop_time = datetime.datetime.utcnow().timestamp()
-
-            print('--------------------')
-            print((stop_time - start_time)*1000)
-            print(heatmaps_result.squeeze(0).shape)
-            print(heatmaps_result.squeeze(0).shape)
-            print(heatmaps_result.squeeze(0).shape)
-            print(heatmaps_result.squeeze(0).shape)
-            print('--------------------')
+            model_time = datetime.datetime.utcnow().timestamp()
 
             pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multiple_poses(
                 heatmaps_result.squeeze(0),
@@ -61,6 +53,15 @@ def main():
                 max_pose_detections=10,
                 min_pose_score=0.25)
 
+            decode_time = datetime.datetime.utcnow().timestamp()
+
+            print((model_time - start_time)*1000)
+            print((decode_time - start_time)*1000)
+            print(heatmaps_result.squeeze(0).shape)
+            print(offsets_result.squeeze(0).shape)
+            print(displacement_fwd_result.squeeze(0).shape)
+            print(displacement_bwd_result.squeeze(0).shape)
+
         keypoint_coords *= output_scale
 
         if args.output_dir:
@@ -70,15 +71,15 @@ def main():
 
             cv2.imwrite(os.path.join(args.output_dir, os.path.relpath(f, args.image_dir)), draw_image)
 
-        if not args.notxt:
-            print()
-            print("Results for image: %s" % f)
-            for pi in range(len(pose_scores)):
-                if pose_scores[pi] == 0.:
-                    break
-                print('Pose #%d, score = %f' % (pi, pose_scores[pi]))
-                for ki, (s, c) in enumerate(zip(keypoint_scores[pi, :], keypoint_coords[pi, :, :])):
-                    print('Keypoint %s, score = %f, coord = %s' % (posenet.PART_NAMES[ki], s, c))
+        # if not args.notxt:
+        #     print()
+        #     print("Results for image: %s" % f)
+        #     for pi in range(len(pose_scores)):
+        #         if pose_scores[pi] == 0.:
+        #             break
+        #         print('Pose #%d, score = %f' % (pi, pose_scores[pi]))
+        #         for ki, (s, c) in enumerate(zip(keypoint_scores[pi, :], keypoint_coords[pi, :, :])):
+        #             print('Keypoint %s, score = %f, coord = %s' % (posenet.PART_NAMES[ki], s, c))
 
     print('Average FPS:', len(filenames) / (time.time() - start))
 
