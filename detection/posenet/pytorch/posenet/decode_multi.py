@@ -3,6 +3,7 @@ from posenet.constants import *
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import cv2
 
 
 def within_nms_radius_fast(pose_coords, squared_nms_radius, point):
@@ -69,14 +70,15 @@ def decode_multiple_poses(
     part_idx = part_idx.cpu().numpy()
 
     print('------------')
-    print(part_scores)
-    print(part_idx)
+    print(part_scores.shape)
+    print(part_idx.shape)
+    for point in part_idx:
+        print(str(point[1]*16) + ":" + str(point[2]*16))
+        cv2.rectangle(mask, (point[2]*16 - 2, point[1]*16 - 2),(point[2]*16 + 2,point[1]*16 + 2), (0, 0, 255), -1)
 
     scores = scores.cpu().numpy()
     height = scores.shape[1] #68
     width = scores.shape[2] #121
-    print(height)
-    print(width)
 
     # change dimensions from (x, h, w) to (x//2, h, w, 2) to allow return of complete coord array
     offsets = offsets.cpu().numpy().reshape(2, -1, height, width).transpose((1, 2, 3, 0))

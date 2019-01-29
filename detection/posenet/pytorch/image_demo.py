@@ -7,6 +7,7 @@ import torch
 import posenet
 
 import datetime
+from posenet.constants import *
 
 
 parser = argparse.ArgumentParser()
@@ -20,8 +21,8 @@ args = parser.parse_args()
 
 def main():
     model = posenet.load_model(args.model)
-    model = model.cuda()
-    #model = model.cpu()
+    # model = model.cuda()
+    model = model.cpu()
     output_stride = model.output_stride
 
     if args.output_dir:
@@ -37,10 +38,10 @@ def main():
             f, scale_factor=args.scale_factor, output_stride=output_stride)
 
         with torch.no_grad():
-            #input_image = torch.Tensor(input_image).cuda()
+            # input_image = torch.Tensor(input_image).cuda()
 
             start_time = datetime.datetime.utcnow().timestamp()
-            input_image = torch.Tensor(input_image).cuda()
+            input_image = torch.Tensor(input_image).cpu()
             heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
             model_time = datetime.datetime.utcnow().timestamp()
 
@@ -70,6 +71,11 @@ def main():
                 min_pose_score=0.25, min_part_score=0.25)
 
             cv2.imwrite(os.path.join(args.output_dir, os.path.relpath(f, args.image_dir)), draw_image)
+            overlay_image = cv2.addWeighted(draw_image,0.6,mask,1,0)
+            cv2.imshow('result', overlay_image)
+            while(True):
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
 
         # if not args.notxt:
         #     print()
