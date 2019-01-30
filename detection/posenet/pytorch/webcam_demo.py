@@ -22,8 +22,10 @@ def main():
     output_stride = model.output_stride
 
     # cap = cv2.VideoCapture(args.cam_id)
-    cap = cv2.VideoCapture('/media/hiep/DATA/Working/Tracking_CCTV/CCTV_Data/Video/' + args.cam_id)
-    video = cv2.VideoWriter("output.avi", cv2.VideoWriter_fourcc(*"XVID"), 30,(args.cam_width,args.cam_height))
+    # cap = cv2.VideoCapture('/media/hiep/DATA/Working/Tracking_CCTV/CCTV_Data/Video/' + args.cam_id)
+    cap = cv2.VideoCapture('/home/hiep/Tracking_CCTV/CCTV_Data/video/' + args.cam_id)
+    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    video = cv2.VideoWriter('output.avi', fourcc, 30, (args.cam_width,args.cam_height))
 
     cap.set(3, args.cam_width)
     cap.set(4, args.cam_height)
@@ -39,14 +41,15 @@ def main():
 
             heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
             print('image_demo headmap' + str(heatmaps_result.shape))
-            heatmap_mask = heatmap_inspection(heatmaps_result) * 2
-            heatmap_mask[heatmap_mask > 255] = 255
+            heatmap_mask = heatmap_inspection(heatmaps_result)
+            # heatmap_mask[heatmap_mask > 255] = 255
             gray_heatmap_img = cv2.cvtColor(display_image, cv2.COLOR_BGR2GRAY)
             heatmap_mask = heatmap_mask.astype(np.uint8)
+            heatmap_mask = cv2.cvtColor(heatmap_mask, cv2.COLOR_GRAY2BGR)
             print('******')
             print(type(gray_heatmap_img[0][0]))
             print(type(heatmap_mask[0][0]))
-            test_heatmap = cv2.addWeighted(gray_heatmap_img,1,heatmap_mask,0.8,0)
+            test_heatmap = cv2.addWeighted(display_image,0.6,heatmap_mask,1,0)
             # show_image('gray_heatmap_img', test_heatmap)
 
         #     pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multiple_poses(
@@ -65,12 +68,14 @@ def main():
         #     display_image, pose_scores, keypoint_scores, keypoint_coords,
         #     min_pose_score=0.15, min_part_score=0.1)
 
-        cv2.imshow('posenet', test_heatmap)
+        # cv2.imshow('posenet', test_heatmap)
         video.write(test_heatmap)
         frame_count += 1
         print(frame_count)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # cv2.imwrite('/media/hiep/DATA/Working/Tracking_CCTV/Output/Image/' + str(frame_count) + '.jpg', test_heatmap)
+        # cv2.imwrite('/home/hiep/Tracking_CCTV/Output/Image/' + str(frame_count) + '.jpg', test_heatmap)
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
 
     print('Average FPS: ', frame_count / (time.time() - start))
     video.release()
