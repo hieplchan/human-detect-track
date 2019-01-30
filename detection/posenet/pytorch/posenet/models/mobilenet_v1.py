@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from collections import OrderedDict
+from ..utils import *
+from ..constants import *
 
 
 def _to_output_strided_layers(convolution_def, output_stride):
@@ -160,5 +162,7 @@ class MobileNetV1(nn.Module):
         offset = self.offset(x)
         displacement_fwd = self.displacement_fwd(x)
         displacement_bwd = self.displacement_bwd(x)
+
+        # heatmap_inspection(heatmap)
 
         return heatmap, offset, displacement_fwd, displacement_bwd

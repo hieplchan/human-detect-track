@@ -8,6 +8,7 @@ import posenet
 
 import datetime
 from posenet.constants import *
+from posenet.utils import *
 
 
 parser = argparse.ArgumentParser()
@@ -43,6 +44,16 @@ def main():
             start_time = datetime.datetime.utcnow().timestamp()
             input_image = torch.Tensor(input_image).cpu()
             heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
+            print('image_demo headmap' + str(heatmaps_result.shape))
+            heatmap_mask = heatmap_inspection(heatmaps_result)
+            gray_heatmap_img = cv2.cvtColor(draw_image, cv2.COLOR_BGR2GRAY)
+            heatmap_mask = heatmap_mask.astype(np.uint8)
+            print('******')
+            print(type(gray_heatmap_img[0][0]))
+            print(type(heatmap_mask[0][0]))
+            test_heatmap = cv2.addWeighted(gray_heatmap_img,0.6,heatmap_mask,1,0)
+            show_image('gray_heatmap_img', test_heatmap)
+
             model_time = datetime.datetime.utcnow().timestamp()
 
             pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multiple_poses(
@@ -56,12 +67,12 @@ def main():
 
             decode_time = datetime.datetime.utcnow().timestamp()
 
-            print((model_time - start_time)*1000)
-            print((decode_time - start_time)*1000)
-            print(heatmaps_result.squeeze(0).shape)
-            print(offsets_result.squeeze(0).shape)
-            print(displacement_fwd_result.squeeze(0).shape)
-            print(displacement_bwd_result.squeeze(0).shape)
+            # print((model_time - start_time)*1000)
+            # print((decode_time - start_time)*1000)
+            # print(heatmaps_result.squeeze(0).shape)
+            # print(offsets_result.squeeze(0).shape)
+            # print(displacement_fwd_result.squeeze(0).shape)
+            # print(displacement_bwd_result.squeeze(0).shape)
 
         keypoint_coords *= output_scale
 
@@ -72,10 +83,10 @@ def main():
 
             cv2.imwrite(os.path.join(args.output_dir, os.path.relpath(f, args.image_dir)), draw_image)
             overlay_image = cv2.addWeighted(draw_image,0.6,mask,1,0)
-            cv2.imshow('result', overlay_image)
-            while(True):
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+            # cv2.imshow('result', overlay_image)
+            # while(True):
+            #     if cv2.waitKey(1) & 0xFF == ord('q'):
+            #         break
 
         # if not args.notxt:
         #     print()
@@ -87,8 +98,9 @@ def main():
         #         for ki, (s, c) in enumerate(zip(keypoint_scores[pi, :], keypoint_coords[pi, :, :])):
         #             print('Keypoint %s, score = %f, coord = %s' % (posenet.PART_NAMES[ki], s, c))
 
-    print('Average FPS:', len(filenames) / (time.time() - start))
+    # print('Average FPS:', len(filenames) / (time.time() - start))
 
 
 if __name__ == "__main__":
+    print('------------')
     main()

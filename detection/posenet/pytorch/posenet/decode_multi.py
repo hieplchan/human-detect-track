@@ -68,13 +68,12 @@ def decode_multiple_poses(
     part_scores, part_idx = build_part_with_score_torch(score_threshold, LOCAL_MAXIMUM_RADIUS, scores)
     part_scores = part_scores.cpu().numpy()
     part_idx = part_idx.cpu().numpy()
-
-    print('------------')
-    print(part_scores.shape)
-    print(part_idx.shape)
-    for point in part_idx:
-        print(str(point[1]*16) + ":" + str(point[2]*16))
-        cv2.rectangle(mask, (point[2]*16 - 2, point[1]*16 - 2),(point[2]*16 + 2,point[1]*16 + 2), (0, 0, 255), -1)
+    #
+    # print(part_scores.shape)
+    # print(part_idx.shape)
+    # for point in part_idx:
+    #     print(str(point[1]*16) + ":" + str(point[2]*16))
+    #     cv2.rectangle(mask, (point[2]*16 - 2, point[1]*16 - 2),(point[2]*16 + 2,point[1]*16 + 2), (0, 0, 255), -1)
 
     scores = scores.cpu().numpy()
     height = scores.shape[1] #68

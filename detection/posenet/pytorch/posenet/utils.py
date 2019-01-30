@@ -3,7 +3,6 @@ import numpy as np
 
 import posenet.constants
 
-
 def valid_resolution(width, height, output_stride=16):
     target_width = (int(width) // output_stride) * output_stride + 1
     target_height = (int(height) // output_stride) * output_stride + 1
@@ -18,6 +17,7 @@ def _process_input(source_img, scale_factor=1.0, output_stride=16):
     input_img = cv2.resize(source_img, (target_width, target_height), interpolation=cv2.INTER_LINEAR)
     input_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB).astype(np.float32)
     input_img = input_img * (2.0 / 255.0) - 1.0
+
     input_img = input_img.transpose((2, 0, 1)).reshape(1, 3, target_height, target_width)
     return input_img, source_img, scale
 
@@ -101,3 +101,26 @@ def draw_skel_and_kp(
             flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     out_img = cv2.polylines(out_img, adjacent_keypoints, isClosed=False, color=(255, 255, 0))
     return out_img
+
+
+def show_image(name, img):
+    cv2.imshow(name, img)
+    while(True):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+def heatmap_inspection(heatmap):
+        print("heatmap: " + str(heatmap[0][0].shape))
+        np_heatmap = heatmap[0].cpu().numpy() * 255
+        np_heatmap_mask = np.zeros(np_heatmap[0].shape, np.float)
+        # print(np_heatmap_mask.shape)
+        # print(np_heatmap[1].shape)
+        for i in range(len(np_heatmap)):
+            # print(i)
+            np_heatmap_mask += np_heatmap[i]
+            # show_image(PART_NAMES[i], np_heatmap[i])
+        np_heatmap_mask = np_heatmap_mask/np.max(np_heatmap_mask)*255
+        # print(np.max(np_heatmap_mask))
+        np_heatmap_mask = cv2.resize(np_heatmap_mask, (1920, 1080), interpolation=cv2.INTER_LINEAR)
+        # show_image('heatmap', np_heatmap_mask)
+        return np_heatmap_mask
