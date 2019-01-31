@@ -17,13 +17,14 @@ args = parser.parse_args()
 
 def main():
     model = posenet.load_model(args.model)
-    model = model.cuda()
-    # model = model.cpu()
+    # model = model.cuda()
+    model = model.cpu()
     output_stride = model.output_stride
 
     # cap = cv2.VideoCapture(args.cam_id)
     cap = cv2.VideoCapture('/media/hiep/DATA/Working/Tracking_CCTV/CCTV_Data/Video/' + args.cam_id)
-    video = cv2.VideoWriter("output.avi", cv2.VideoWriter_fourcc(*"XVID"), 30,(args.cam_width,args.cam_height))
+    # cap = cv2.VideoCapture('/home/hiep/Tracking_CCTV/CCTV_Data/video/' + args.cam_id)
+    video = cv2.VideoWriter("output.avi", cv2.VideoWriter_fourcc(*'MP4V'), 30,(args.cam_width,args.cam_height))
 
     cap.set(3, args.cam_width)
     cap.set(4, args.cam_height)
@@ -34,8 +35,8 @@ def main():
         input_image, display_image, output_scale = posenet.read_cap(cap, scale_factor=args.scale_factor, output_stride=output_stride)
 
         with torch.no_grad():
-            input_image = torch.Tensor(input_image).cuda()
-            # input_image = torch.Tensor(input_image).cpu()
+            # input_image = torch.Tensor(input_image).cuda()
+            input_image = torch.Tensor(input_image).cpu()
 
             heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
             print('image_demo headmap' + str(heatmaps_result.shape))
@@ -66,9 +67,14 @@ def main():
         #     min_pose_score=0.15, min_part_score=0.1)
 
         cv2.imshow('posenet', test_heatmap)
-        video.write(test_heatmap)
         frame_count += 1
         print(frame_count)
+        # cv2.imwrite('/media/hiep/DATA/Working/Tracking_CCTV/Output/Image/' + str(frame_count) + '.jpg', test_heatmap)
+        cv2.imwrite('/home/hiep/Tracking_CCTV/Output/Image/' + str(frame_count) + '.jpg', test_heatmap)
+        video.write(test_heatmap)
+        if (frame_count == 823):
+                print('Average FPS: ', frame_count / (time.time() - start))
+                video.release()
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
