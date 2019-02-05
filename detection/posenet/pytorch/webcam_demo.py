@@ -17,8 +17,8 @@ args = parser.parse_args()
 
 def main():
     model = posenet.load_model(args.model)
-    model = model.cuda()
-    # model = model.cpu()
+    # model = model.cuda()
+    model = model.cpu()
     output_stride = model.output_stride
 
     # cap = cv2.VideoCapture(args.cam_id)
@@ -36,8 +36,8 @@ def main():
         input_image, display_image, output_scale = posenet.read_cap(cap, scale_factor=args.scale_factor, output_stride=output_stride)
 
         with torch.no_grad():
-            input_image = torch.Tensor(input_image).cuda()
-            # input_image = torch.Tensor(input_image).cpu()
+            # input_image = torch.Tensor(input_image).cuda()
+            input_image = torch.Tensor(input_image).cpu()
 
             heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
             print('image_demo headmap' + str(heatmaps_result.shape))
@@ -67,8 +67,8 @@ def main():
         # overlay_image = posenet.draw_skel_and_kp(
         #     display_image, pose_scores, keypoint_scores, keypoint_coords,
         #     min_pose_score=0.15, min_part_score=0.1)
-
         # cv2.imshow('posenet', test_heatmap)
+        
         video.write(test_heatmap)
         frame_count += 1
         print(frame_count)

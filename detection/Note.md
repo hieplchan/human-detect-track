@@ -7,6 +7,8 @@ python image_demo.py --model 50 --image_dir /home/hiep/Tracking_CCTV/CCTV_Data/i
 python image_demo.py --model 50 --image_dir /media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Image --output_dir /media/hiep/DATA/Work_space/Tracking_CCTV/Output/Image
 
 python webcam_demo.py --cam_id '1.mp4' --model=50
+python heatmap_demo.py --cam_id '2.mp4' --model=50
+
 
 # 2. DENSEPOSE BASE DETECTION TEST:
 [Tutorial](https://github.com/siamaksalman/denseposeInstalltion)

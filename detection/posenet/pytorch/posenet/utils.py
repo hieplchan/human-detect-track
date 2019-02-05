@@ -120,7 +120,8 @@ def heatmap_inspection(heatmap):
             np_heatmap_mask += np_heatmap[i]
             # show_image(PART_NAMES[i], np_heatmap[i])
         np_heatmap_mask = np_heatmap_mask/np.max(np_heatmap_mask)*255
+        show_image('heatmap scale factor', np_heatmap_mask.astype(np.uint8))
         # print(np.max(np_heatmap_mask))
-        np_heatmap_mask = cv2.resize(np_heatmap_mask, (1920, 1080), interpolation=cv2.INTER_LINEAR)
+        # np_heatmap_mask = cv2.resize(np_heatmap_mask, (1920, 1080), interpolation=cv2.INTER_LINEAR)
         # show_image('heatmap', np_heatmap_mask)
         return np_heatmap_mask
