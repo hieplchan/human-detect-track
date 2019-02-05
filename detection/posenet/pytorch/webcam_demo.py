@@ -23,7 +23,8 @@ def main():
 
     # cap = cv2.VideoCapture(args.cam_id)
     # cap = cv2.VideoCapture('/media/hiep/DATA/Working/Tracking_CCTV/CCTV_Data/Video/' + args.cam_id)
-    cap = cv2.VideoCapture('/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video' + args.cam_id)
+    # cap = cv2.VideoCapture('/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/' + args.cam_id)
+    cap = cv2.VideoCapture('/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/' + args.cam_id)
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     video = cv2.VideoWriter('output.avi', fourcc, 30, (args.cam_width,args.cam_height))
 
@@ -68,7 +69,7 @@ def main():
         #     display_image, pose_scores, keypoint_scores, keypoint_coords,
         #     min_pose_score=0.15, min_part_score=0.1)
         # cv2.imshow('posenet', test_heatmap)
-        
+
         video.write(test_heatmap)
         frame_count += 1
         print(frame_count)
