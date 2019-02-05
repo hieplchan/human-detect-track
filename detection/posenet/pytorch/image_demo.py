@@ -48,12 +48,12 @@ def main():
             heatmap_mask = heatmap_inspection(heatmaps_result) * 2
             heatmap_mask[heatmap_mask > 255] = 255
             gray_heatmap_img = cv2.cvtColor(draw_image, cv2.COLOR_BGR2GRAY)
-            heatmap_mask = cv2.cvtColor(heatmap_mask, cv2.COLOR_GRAY2BGR)
+            # heatmap_mask = cv2.cvtColor(heatmap_mask, cv2.COLOR_GRAY2BGR)
             heatmap_mask = heatmap_mask.astype(np.uint8)
             print('******')
             print(type(gray_heatmap_img[0][0]))
             print(type(heatmap_mask[0][0]))
-            test_heatmap = cv2.addWeighted(draw_image,1,heatmap_mask,0.8,0)
+            test_heatmap = cv2.addWeighted(gray_heatmap_img,1,heatmap_mask,0.8,0)
             show_image('gray_heatmap_img', test_heatmap)
 
             model_time = datetime.datetime.utcnow().timestamp()
