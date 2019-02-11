@@ -19,10 +19,10 @@ process_time_log_handle.setFormatter(logging.Formatter('%(asctime)s,%(name)s,%(l
 logger.addHandler(process_time_log_handle)
 
 """ VIDEO PARAMS """
-CAM_WIDTH = 1920
-CAM_HEIGHT = 1080
-VIDEO_NAME = '2.mp4'
-VIDEO_PATH = '/media/hiep/DATA/Working/Tracking_CCTV/CCTV_Data/Video/'
+CAM_WIDTH = 960 #1920 #960
+CAM_HEIGHT = 540 #1080 #540
+VIDEO_NAME = '8.mp4'
+VIDEO_PATH = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/'
 OUTPUT_VIDEO_PATH = ROOT_DIR + '/output/'
 
 """ LUCAS KANADE PARAMS """

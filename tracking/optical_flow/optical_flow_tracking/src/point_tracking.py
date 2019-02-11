@@ -36,7 +36,11 @@ if __name__ == '__main__':
             break
 
     # Lucas Kanade Tracking
+    count = 0
     while(True):
+        count += 1
+        print(count)
+        start_time = time.process_time()
         logger.info(time.process_time())
         ret, frame = cap.read()
         old_gray_frame = gray_frame
@@ -56,6 +60,8 @@ if __name__ == '__main__':
         video.write(frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
+        print((time.process_time() - start_time)*1000)
 
     cap.release()
     video.release()

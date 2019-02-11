@@ -47,13 +47,13 @@ if __name__ == '__main__':
 
         # print(points_old.shape)
 
-        # mask = np.zeros((1080,1920,1), np.uint8)
-        # for point in points_new:
-        #     x, y = point.ravel()
-        #     print(str(x) + ":" + str(y))
-        #     mask[int(y), int(x)] = 255
-        #
-        # overlay_image = cv2.addWeighted(gray_frame,1,mask,0.8,0)
+        mask = np.zeros((1080,1920,1), np.uint8)
+        for point in points_new:
+            x, y = point.ravel()
+            print(str(x) + ":" + str(y))
+            mask[int(y), int(x)] = 255
+
+        overlay_image = cv2.addWeighted(gray_frame,1,mask,0.8,0)
         cv2.imshow("CCTV", gray_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
