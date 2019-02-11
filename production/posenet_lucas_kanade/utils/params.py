@@ -34,4 +34,7 @@ lk_params = dict(winSize = (15, 15),
 TRIANGLE_WIDE = 10
 
 """ POSENET PARAMS """
-MODEL_DIR = ROOT_DIR + '/model/'
+POSENET_MODEL_NUM = 50
+SCALE_FACTOR = 0.5
+OUTPUT_STRIDE = 16
+INPUT_IMG_TEST_DIR = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Image'
