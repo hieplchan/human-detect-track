@@ -131,7 +131,7 @@ MOBILE_NET_V1_50 = [
 
 class MobileNetV1(nn.Module):
 
-    def __init__(self, model_id, output_stride=16):
+    def __init__(self, model_id, output_stride):
         super(MobileNetV1, self).__init__()
 
         assert model_id in MOBILENET_V1_CHECKPOINTS.keys()
@@ -162,7 +162,4 @@ class MobileNetV1(nn.Module):
         offset = self.offset(x)
         displacement_fwd = self.displacement_fwd(x)
         displacement_bwd = self.displacement_bwd(x)
-
-        # heatmap_inspection(heatmap, offset, displacement_fwd, displacement_bwd)
-
         return heatmap, offset, displacement_fwd, displacement_bwd
