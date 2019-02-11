@@ -39,18 +39,28 @@ def main():
 def heatmap_inspection(heatmaps_result, draw_image, scale_factor, output_stride):
     # print('----- heatmap_inspection -----')
     np_heatmap = heatmaps_result[0].cpu().numpy() * 255
-    np_heatmap_mask = np.zeros(np_heatmap[0].shape, np.float)
 
+    ''' All mask'''
+    np_heatmap_all_mask = np.zeros(np_heatmap[0].shape, np.float)
     for i in range(len(np_heatmap)):
-        np_heatmap_mask += np_heatmap[i]
+        np_heatmap_all_mask += np_heatmap[i]
 
-    np_heatmap_mask = np_heatmap_mask/np.max(np_heatmap_mask)*255
-    np_heatmap_mask = np_heatmap_mask.astype(np.uint8)
-    np_heatmap_mask = cv2.resize(np_heatmap_mask, (draw_image.shape[1], draw_image.shape[0]), interpolation=cv2.INTER_NEAREST)
-    np_heatmap_mask = cv2.cvtColor(np_heatmap_mask, cv2.COLOR_GRAY2BGR)
+    ''' Face mask '''
+    np_heatmap_face_mask = np.zeros(np_heatmap[0].shape, np.float)
+    np_heatmap_face_mask = np_heatmap[0] + np_heatmap[1] + np_heatmap[2] + np_heatmap[3] + np_heatmap[4]
+
+    ''' Body mask '''
+    np_heatmap_body_mask = np.zeros(np_heatmap[0].shape, np.float)
+    for i in range(5, 17):
+        np_heatmap_body_mask += np_heatmap[i]
+
+    np_heatmap_all_mask = np_heatmap_all_mask/np.max(np_heatmap_all_mask)*255
+    np_heatmap_all_mask = np_heatmap_all_mask.astype(np.uint8)
+    np_heatmap_all_mask = cv2.resize(np_heatmap_all_mask, (draw_image.shape[1], draw_image.shape[0]), interpolation=cv2.INTER_NEAREST)
+    np_heatmap_all_mask = cv2.cvtColor(np_heatmap_all_mask, cv2.COLOR_GRAY2BGR)
     # show_image('np_heatmap_mask', np_heatmap_mask)
     # show_image('draw_image', draw_image)
-    show_image('Overlay picture', cv2.addWeighted(draw_image, 0.2, np_heatmap_mask, 1, 0))
+    show_image('Overlay picture', cv2.addWeighted(draw_image, 0.2, np_heatmap_all_mask, 1, 0))
 
 def show_image(name, img):
     cv2.imshow(name, img)

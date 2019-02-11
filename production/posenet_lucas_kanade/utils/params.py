@@ -19,9 +19,9 @@ process_time_log_handle.setFormatter(logging.Formatter('%(asctime)s,%(name)s,%(l
 logger.addHandler(process_time_log_handle)
 
 """ IMAGE VIDEO TEST PARAMS """
-CAM_WIDTH = 1920
-CAM_HEIGHT = 1080
-VIDEO_NAME = '6.mp4'
+CAM_WIDTH = 1920 #960
+CAM_HEIGHT = 1080 #540
+VIDEO_NAME = '1.mp4'
 VIDEO_PATH = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/'
 OUTPUT_VIDEO_PATH = ROOT_DIR + '/output/'
 INPUT_IMG_TEST_DIR = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Image'
@@ -38,4 +38,4 @@ TRIANGLE_WIDE = 10
 """ POSENET PARAMS """
 POSENET_MODEL_NUM = 50
 SCALE_FACTOR = 0.5
-OUTPUT_STRIDE = 16
+OUTPUT_STRIDE = 32
