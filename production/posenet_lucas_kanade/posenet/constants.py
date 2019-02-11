@@ -1,5 +1,4 @@
 import numpy as np
-mask = np.zeros((1080,1920,3), np.uint8)
 
 PART_NAMES = [
     "nose", "leftEye", "rightEye", "leftEar", "rightEar", "leftShoulder",
@@ -34,6 +33,7 @@ POSE_CHAIN = [
     ("rightShoulder", "rightHip"), ("rightHip", "rightKnee"),
     ("rightKnee", "rightAnkle")
 ]
+
 
 PARENT_CHILD_TUPLES = [(PART_IDS[parent], PART_IDS[child]) for parent, child in POSE_CHAIN]
 
