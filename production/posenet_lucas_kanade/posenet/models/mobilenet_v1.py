@@ -157,6 +157,7 @@ class MobileNetV1(nn.Module):
         self.offset = nn.Conv2d(last_depth, 34, 1, 1)
         self.displacement_fwd = nn.Conv2d(last_depth, 32, 1, 1)
         self.displacement_bwd = nn.Conv2d(last_depth, 32, 1, 1)
+        print(self.offset)
 
     def forward(self, x):
         x = self.features(x)
