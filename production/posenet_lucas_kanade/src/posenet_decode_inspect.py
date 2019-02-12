@@ -13,6 +13,12 @@ from posenet_lucas_kanade.utils.params import *
 model = posenet.load_model(POSENET_MODEL_NUM, OUTPUT_STRIDE)
 model = model.cpu()
 
+def show_image(name, img):
+    cv2.imshow(name, img)
+    while(True):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
 def main():
 
     # Output stride - default 16
@@ -39,7 +45,8 @@ def main():
 def heatmap_inspection(heatmaps_result, draw_image, scale_factor, output_stride):
     # print('----- heatmap_inspection -----')
     # Get heatmap above threshole
-    np_heatmap = heatmaps_result[0].cpu().numpy()
+    np_heatmap = heatmaps_result
+    np_heatmap = np_heatmap[0].cpu().numpy()
     below_threshold_indices = np_heatmap < THRESHOLD
     np_heatmap[below_threshold_indices] = 0
 
@@ -52,21 +59,33 @@ def heatmap_inspection(heatmaps_result, draw_image, scale_factor, output_stride)
     for i in range(4, len(np_heatmap)):
         np_heatmap_all_mask += np_heatmap[i]
 
-    # Equal mask
-    ispeople_indices = np_heatmap_all_mask > 0
-    np_heatmap_all_mask[ispeople_indices] = 255
-    # # Not equal mask
-    # np_heatmap_all_mask = np_heatmap_all_mask/np.max(np_heatmap_all_mask)*255
+    # # Equal mask
+    # ispeople_indices = np_heatmap_all_mask > 0
+    # np_heatmap_all_mask[ispeople_indices] = 255
+    # Not equal mask
+    np_heatmap_all_mask = np_heatmap_all_mask/np.max(np_heatmap_all_mask)*255
     np_heatmap_all_mask = np_heatmap_all_mask.astype(np.uint8)
     np_heatmap_all_mask = cv2.resize(np_heatmap_all_mask, (draw_image.shape[1], draw_image.shape[0]), interpolation=cv2.INTER_NEAREST)
     np_heatmap_all_mask = cv2.cvtColor(np_heatmap_all_mask, cv2.COLOR_GRAY2BGR)
-    show_image('Overlay picture', cv2.addWeighted(draw_image, 0.3, np_heatmap_all_mask, 0.8, 0))
+    overlay_img = cv2.addWeighted(draw_image, 0.3, np_heatmap_all_mask, 0.8, 0)
+    # show_image('Overlay picture', overlay_img)
+    return overlay_img
 
-def show_image(name, img):
-    cv2.imshow(name, img)
-    while(True):
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+def decode_inspection(heatmaps_result, draw_image, scale_factor, output_stride, offsets_result, displacement_fwd_result, displacement_bwd_result, overlay_img):
+    pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multiple_poses(
+                                                        heatmaps_result.squeeze(0),
+                                                        offsets_result.squeeze(0),
+                                                        displacement_fwd_result.squeeze(0),
+                                                        displacement_bwd_result.squeeze(0),
+                                                        output_stride = output_stride,
+                                                        max_pose_detections = 50,
+                                                        score_threshold = 0.05,
+                                                        nms_radius = 30,
+                                                        min_pose_score=0.05)
+
+    decoded_image = posenet.draw_skel_and_kp(overlay_img, pose_scores, keypoint_scores, keypoint_coords, min_pose_score=0.25, min_part_score=0.25)
+    show_image('Pose estimation', decoded_image)
+    print('Decode inspection done!!!')
 
 def main_processing(input_image, draw_image, output_scale):
 
@@ -78,11 +97,15 @@ def main_processing(input_image, draw_image, output_scale):
         start_time = time.time()
         # Posenet compute - return heatmap torch.Size([1, 17, int(HEIGHT*SCALE_FACTOR/OUTPUT_STRIDE + 1), int(WIDTH*SCALE_FACTOR/OUTPUT_STRIDE + 1)])
         heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
+        heatmaps_result1 = heatmaps_result
         stop_time = time.time()
         print('Compute time: ' + str((stop_time - start_time)*1000))
 
-        # Heatmap result inspection
-        heatmap_inspection(heatmaps_result, draw_image, SCALE_FACTOR, OUTPUT_STRIDE)
+        # # Heatmap result inspection
+        overlay_img = heatmap_inspection(heatmaps_result, draw_image, SCALE_FACTOR, OUTPUT_STRIDE)
+
+        # Decode human body inspection
+        decode_inspection(heatmaps_result1, draw_image, SCALE_FACTOR, OUTPUT_STRIDE, offsets_result, displacement_fwd_result, displacement_bwd_result, overlay_img)
 
 if __name__ == "__main__":
     print('***** START PROGRAMME *****')
