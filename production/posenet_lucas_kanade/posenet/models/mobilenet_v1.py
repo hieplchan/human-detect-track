@@ -6,45 +6,7 @@ from collections import OrderedDict
 from ..utils import *
 from ..constants import *
 
-
-def _to_output_strided_layers(convolution_def, output_stride):
-    current_stride = 1
-    rate = 1
-    block_id = 0
-    buff = []
-    for c in convolution_def:
-        conv_type = c[0]
-        inp = c[1]
-        outp = c[2]
-        stride = c[3]
-
-        if current_stride == output_stride:
-            layer_stride = 1
-            layer_rate = rate
-            rate *= stride
-        else:
-            layer_stride = stride
-            layer_rate = 1
-            current_stride *= stride
-
-        buff.append({
-            'block_id': block_id,
-            'conv_type': conv_type,
-            'inp': inp,
-            'outp': outp,
-            'stride': layer_stride,
-            'rate': layer_rate,
-            'output_stride': current_stride
-        })
-        block_id += 1
-
-    return buff
-
-
-def _get_padding(kernel_size, stride, dilation):
-    padding = ((stride - 1) + dilation * (kernel_size - 1)) // 2
-    return padding
-
+''' CONVOLUTION LAYER TYPE '''
 
 class InputConv(nn.Module):
     def __init__(self, inp, outp, k=3, stride=1, dilation=1):
@@ -54,7 +16,6 @@ class InputConv(nn.Module):
 
     def forward(self, x):
         return F.relu6(self.conv(x))
-
 
 class SeperableConv(nn.Module):
     def __init__(self, inp, outp, k=3, stride=1, dilation=1):
@@ -69,13 +30,11 @@ class SeperableConv(nn.Module):
         x = F.relu6(self.pointwise(x))
         return x
 
+def _get_padding(kernel_size, stride, dilation):
+    padding = ((stride - 1) + dilation * (kernel_size - 1)) // 2
+    return padding
 
-MOBILENET_V1_CHECKPOINTS = {
-    50: 'mobilenet_v1_050',
-    75: 'mobilenet_v1_075',
-    100: 'mobilenet_v1_100',
-    101: 'mobilenet_v1_101'
-}
+''' MODEL ARCHITECTURE '''
 
 MOBILE_NET_V1_100 = [
     (InputConv, 3, 32, 2),
@@ -128,6 +87,49 @@ MOBILE_NET_V1_50 = [
     (SeperableConv, 256, 256, 1)
 ]
 
+MOBILENET_V1_CHECKPOINTS = {
+    50: 'mobilenet_v1_050',
+    75: 'mobilenet_v1_075',
+    100: 'mobilenet_v1_100',
+    101: 'mobilenet_v1_101'
+}
+
+def _to_output_strided_layers(convolution_def, output_stride):
+    ''' Merge all layer to single one output layer '''
+
+    current_stride = 1
+    rate = 1
+    block_id = 0
+    buff = []
+    for c in convolution_def:
+        conv_type = c[0]
+        inp = c[1]
+        outp = c[2]
+        stride = c[3]
+
+        if current_stride == output_stride:
+            layer_stride = 1
+            layer_rate = rate
+            rate *= stride
+        else:
+            layer_stride = stride
+            layer_rate = 1
+            current_stride *= stride
+
+        buff.append({
+            'block_id': block_id,
+            'conv_type': conv_type,
+            'inp': inp,
+            'outp': outp,
+            'stride': layer_stride,
+            'rate': layer_rate,
+            'output_stride': current_stride
+        })
+        block_id += 1
+
+    return buff
+
+''' POSENET MODEL USING MOBILENETV1 '''
 
 class MobileNetV1(nn.Module):
 
@@ -145,11 +147,11 @@ class MobileNetV1(nn.Module):
             arch = MOBILE_NET_V1_100
 
         conv_def = _to_output_strided_layers(arch, output_stride)
-        conv_list = [('conv%d' % c['block_id'], c['conv_type'](
-            c['inp'], c['outp'], 3, stride=c['stride'], dilation=c['rate']))
-            for c in conv_def]
+        conv_list = [('conv%d' % c['block_id'], c['conv_type'](c['inp'], c['outp'], 3, stride=c['stride'], dilation=c['rate']))
+                        for c in conv_def]
         last_depth = conv_def[-1]['outp']
 
+        # A sequential container of posenet convolution layer
         self.features = nn.Sequential(OrderedDict(conv_list))
         self.heatmap = nn.Conv2d(last_depth, 17, 1, 1)
         self.offset = nn.Conv2d(last_depth, 34, 1, 1)

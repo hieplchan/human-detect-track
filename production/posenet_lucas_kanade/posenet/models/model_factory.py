@@ -6,7 +6,6 @@ from posenet_lucas_kanade import POSENET_MODEL_DIR
 
 DEBUG_OUTPUT = False
 
-
 def load_model(model_id, output_stride, model_dir=POSENET_MODEL_DIR):
     model_path = os.path.join(model_dir, MOBILENET_V1_CHECKPOINTS[model_id] + '.pth')
     if not os.path.exists(model_path):
