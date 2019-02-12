@@ -21,7 +21,7 @@ logger.addHandler(process_time_log_handle)
 """ IMAGE VIDEO TEST PARAMS """
 CAM_WIDTH = 1920 #960
 CAM_HEIGHT = 1080 #540
-INPUT_IMG_TEST_DIR = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Image_sample_CCTV'
+INPUT_IMG_TEST_DIR = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Image'
 VIDEO_PATH = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/'
 OUTPUT_VIDEO_PATH = ROOT_DIR + '/output/'
 VIDEO_NAME = '8.mp4'

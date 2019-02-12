@@ -11,7 +11,6 @@ def within_nms_radius_fast(pose_coords, squared_nms_radius, point):
         return False
     return np.any(np.sum((pose_coords - point) ** 2, axis=1) <= squared_nms_radius)
 
-
 def get_instance_score_fast(
         exist_pose_coords,
         squared_nms_radius,
@@ -23,7 +22,6 @@ def get_instance_score_fast(
     else:
         not_overlapped_scores = np.sum(keypoint_scores)
     return not_overlapped_scores / len(keypoint_scores)
-
 
 def build_part_with_score_torch(score_threshold, local_max_radius, scores):
     lmd = 2 * local_max_radius + 1
@@ -60,20 +58,41 @@ def build_part_with_score_torch(score_threshold, local_max_radius, scores):
 
 
 def decode_multiple_poses(
-        scores, offsets, displacements_fwd, displacements_bwd, output_stride,
+        scores, offsets, displacements_fwd, displacements_bwd, output_stride, draw_image,
         max_pose_detections=10, score_threshold=0.5, nms_radius=20, min_pose_score=0.5):
+    '''
+    scores: heatmap
+    '''
+
+    print('----- Decode multi pose -----')
 
     # perform part scoring step on GPU as it's expensive
     # TODO determine how much more of this would be worth performing on the GPU
     part_scores, part_idx = build_part_with_score_torch(score_threshold, LOCAL_MAXIMUM_RADIUS, scores)
     part_scores = part_scores.cpu().numpy()
     part_idx = part_idx.cpu().numpy()
-    #
+
+    # print('# Function build_part_with_score_torch')
+    # # part_scores: confidence scores of n point (> threshole)
+    # # part_idx: location of point [part order, x, y]
+    # print(scores.shape)
     # print(part_scores.shape)
     # print(part_idx.shape)
+    # print(part_scores[0])
+    # print(part_idx[0])
+    #
     # for point in part_idx:
     #     print(str(point[1]*16) + ":" + str(point[2]*16))
-    #     cv2.rectangle(mask, (point[2]*16 - 2, point[1]*16 - 2),(point[2]*16 + 2,point[1]*16 + 2), (0, 0, 255), -1)
+    #     cv2.rectangle(draw_image,
+    #                     (point[2]*16 - 2, point[1]*output_stride - 2),
+    #                     (point[2]*output_stride + 2,point[1]*output_stride + 2),
+    #                     (0, 0, 255),
+    #                     -1)
+    # cv2.imshow('Test', draw_image)
+    # while(True):
+    #     if cv2.waitKey(1) & 0xFF == ord('q'):
+    #         break
+
 
     scores = scores.cpu().numpy()
     height = scores.shape[1] #68
