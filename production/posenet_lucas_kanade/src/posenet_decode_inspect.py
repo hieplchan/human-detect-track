@@ -59,7 +59,6 @@ def feature_inspection(features, draw_image):
         overlay_img = cv2.resize(overlay_img, (640, 480), interpolation=cv2.INTER_NEAREST)
         show_image('Features inspection', overlay_img)
 
-
 def heatmap_inspection(heatmaps_result, draw_image, scale_factor, output_stride):
     # print('----- heatmap_inspection -----')
     # Get heatmap above threshole
