@@ -44,15 +44,20 @@ def main():
 
 def feature_inspection(features, draw_image):
     print('----- Features inspection -----')
-    # print(features.shape)
-    # print(features[0][1].shape)
+    print(features.shape)
+    print(features[0][1].shape)
 
-    np_heatmap_all_mask = np.zeros([68,121,1])
-    np_heatmap_all_mask[:,:,0] = features[0][1]
-    np_heatmap_all_mask = cv2.resize(np_heatmap_all_mask, (draw_image.shape[1], draw_image.shape[0]), interpolation=cv2.INTER_NEAREST)
-    np_heatmap_all_mask = cv2.cvtColor(np_heatmap_all_mask, cv2.COLOR_GRAY2BGR)
-    overlay_img = cv2.addWeighted(draw_image, 0.3, np_heatmap_all_mask, 0.8, 0)
-    show_image('Features inspection', overlay_img)
+    for i in range(0, 256):
+        print('Feature num: ' + str(i))
+        np_features_all_mask = np.zeros([features[0][1].shape[0], features[0][1].shape[1], 1])
+        np_features_all_mask[:,:,0] = features[0][i]
+        np_features_all_mask = np_features_all_mask/np.max(np_features_all_mask)*255
+        np_features_all_mask = np_features_all_mask.astype(np.uint8)
+        np_features_all_mask = cv2.resize(np_features_all_mask, (draw_image.shape[1], draw_image.shape[0]), interpolation=cv2.INTER_LINEAR)
+        np_features_all_mask = cv2.cvtColor(np_features_all_mask, cv2.COLOR_GRAY2BGR)
+        overlay_img = cv2.addWeighted(draw_image, 0.3, np_features_all_mask, 0.8, 0)
+        overlay_img = cv2.resize(overlay_img, (640, 480), interpolation=cv2.INTER_NEAREST)
+        show_image('Features inspection', overlay_img)
 
 
 def heatmap_inspection(heatmaps_result, draw_image, scale_factor, output_stride):
