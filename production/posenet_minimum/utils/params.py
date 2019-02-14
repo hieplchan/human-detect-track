@@ -1,22 +1,9 @@
 import numpy as np
-import logging
 import time
 import cv2
 import os
 
-from posenet_lucas_kanade import ROOT_DIR
-
-""" LOGGING PARAMS """
-LOG_DIR = ROOT_DIR + '/log/'
-if os.path.exists(LOG_DIR + 'process_time_log.csv'):
-  os.remove(LOG_DIR + 'process_time_log.csv')
-logger = logging.getLogger('process_time')
-logger.setLevel(logging.DEBUG)
-# Process tiem logger
-process_time_log_handle = logging.FileHandler(LOG_DIR + 'process_time_log.csv')
-process_time_log_handle.setLevel(logging.DEBUG)
-process_time_log_handle.setFormatter(logging.Formatter('%(asctime)s,%(name)s,%(levelname)s,%(message)s', '%Y-%m-%d %H:%M:%S'))
-logger.addHandler(process_time_log_handle)
+from posenet_minimum import ROOT_DIR
 
 """ IMAGE VIDEO TEST PARAMS """
 CAM_WIDTH = 1920 #960
