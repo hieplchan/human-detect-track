@@ -132,3 +132,6 @@ displacement_fwd.bias torch.Size([32])
 displacement_bwd.weight torch.Size([32, 256, 1, 1])
 displacement_bwd.bias torch.Size([32])
 ```
+Total params: 577,459
+Trainable params: 577,459
+Non-trainable params: 0

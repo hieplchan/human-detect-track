@@ -1,5 +1,7 @@
 import torch
 import os
+import sys
+from torchsummary import summary
 
 from .mobilenet_v1 import MobileNetV1, MOBILENET_V1_CHECKPOINTS
 from posenet_lucas_kanade import POSENET_MODEL_DIR
@@ -16,11 +18,24 @@ def load_model(model_id, output_stride, model_dir=POSENET_MODEL_DIR):
 
     model = MobileNetV1(model_id, output_stride=output_stride)
     load_dict = torch.load(model_path)
+    model.load_state_dict(load_dict)
 
     # Print all parameter load from google posenet pre-trained
     # for key, value in load_dict.items():
     #     print(key, value.shape)
 
-    model.load_state_dict(load_dict)
+    # Size of one parameter of MobileNetV1
+    # torch.tensor(float) take 72 bytes, float 24 bytes, decimal 80 bytes
+    # print(sys.getsizeof(load_dict['heatmap.weight'][0][0][0][0]))
+    # print(load_dict['heatmap.weight'][0][0][0][0])
+    # a = 5.5
+    # print(sys.getsizeof(a))
+    # print(type(a))
+
+    # Check if model is using CUDA
+    print(next(model.parameters()).is_cuda)
+
+    # Size of model ???
+    summary(model, (3, 1073, 1921))
 
     return model

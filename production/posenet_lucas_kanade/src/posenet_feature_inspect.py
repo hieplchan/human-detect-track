@@ -80,7 +80,7 @@ def offset_inspection(offsets_result, draw_image):
         np_offset_all_mask = cv2.cvtColor(np_offset_all_mask, cv2.COLOR_GRAY2BGR)
         overlay_img = cv2.addWeighted(draw_image, 0.2, np_offset_all_mask, 1, 0)
         overlay_img = cv2.resize(overlay_img, (640, 480), interpolation=cv2.INTER_NEAREST)
-        show_image('Features inspection', overlay_img)
+        # show_image('Features inspection', overlay_img)
 
 def decode_inspection(heatmaps_result, draw_image, scale_factor, output_stride, offsets_result, displacement_fwd_result, displacement_bwd_result, overlay_img):
     pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multiple_poses(
