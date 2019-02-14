@@ -16,6 +16,11 @@ def load_model(model_id, output_stride, model_dir=POSENET_MODEL_DIR):
 
     model = MobileNetV1(model_id, output_stride=output_stride)
     load_dict = torch.load(model_path)
+
+    # Print all parameter load from google posenet pre-trained
+    # for key, value in load_dict.items():
+    #     print(key, value.shape)
+
     model.load_state_dict(load_dict)
 
     return model

@@ -67,20 +67,20 @@ def heatmap_inspection(heatmaps_result, draw_image, scale_factor, output_stride)
 
 def offset_inspection(offsets_result, draw_image):
     print('----- Offset inspection -----')
-    # print(features.shape)
-    # print(features[0][1].shape)
-    #
-    # for i in range(255, -1, -1):
-    #     print('Feature num: ' + str(i))
-    #     np_features_all_mask = np.zeros([features[0][1].shape[0], features[0][1].shape[1], 1])
-    #     np_features_all_mask[:,:,0] = features[0][i]
-    #     np_features_all_mask = np_features_all_mask/np.max(np_features_all_mask)*255
-    #     np_features_all_mask = np_features_all_mask.astype(np.uint8)
-    #     np_features_all_mask = cv2.resize(np_features_all_mask, (draw_image.shape[1], draw_image.shape[0]), interpolation=cv2.INTER_LINEAR)
-    #     np_features_all_mask = cv2.cvtColor(np_features_all_mask, cv2.COLOR_GRAY2BGR)
-    #     overlay_img = cv2.addWeighted(draw_image, 0.2, np_features_all_mask, 1, 0)
-    #     overlay_img = cv2.resize(overlay_img, (640, 480), interpolation=cv2.INTER_NEAREST)
-    #     show_image('Features inspection', overlay_img)
+    print(offsets_result.shape)
+    print(offsets_result[0][1].shape)
+
+    for i in range(33, -1, -1):
+        print('Offset num: ' + str(i))
+        np_offset_all_mask = np.zeros([offsets_result[0][1].shape[0], offsets_result[0][1].shape[1], 1])
+        np_offset_all_mask[:,:,0] = offsets_result[0][i]
+        np_offset_all_mask = np_offset_all_mask/np.max(np_offset_all_mask)*255
+        np_offset_all_mask = np_offset_all_mask.astype(np.uint8)
+        np_offset_all_mask = cv2.resize(np_offset_all_mask, (draw_image.shape[1], draw_image.shape[0]), interpolation=cv2.INTER_LINEAR)
+        np_offset_all_mask = cv2.cvtColor(np_offset_all_mask, cv2.COLOR_GRAY2BGR)
+        overlay_img = cv2.addWeighted(draw_image, 0.2, np_offset_all_mask, 1, 0)
+        overlay_img = cv2.resize(overlay_img, (640, 480), interpolation=cv2.INTER_NEAREST)
+        show_image('Features inspection', overlay_img)
 
 def decode_inspection(heatmaps_result, draw_image, scale_factor, output_stride, offsets_result, displacement_fwd_result, displacement_bwd_result, overlay_img):
     pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multiple_poses(
