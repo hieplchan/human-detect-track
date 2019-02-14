@@ -2,6 +2,7 @@ import torch
 import os
 import sys
 from torchsummary import summary
+from torch.autograd import Variable
 
 from .mobilenet_v1 import MobileNetV1, MOBILENET_V1_CHECKPOINTS
 from posenet_lucas_kanade import POSENET_MODEL_DIR
@@ -35,7 +36,7 @@ def load_model(model_id, output_stride, model_dir=POSENET_MODEL_DIR):
     # Check if model is using CUDA
     print(next(model.parameters()).is_cuda)
 
-    # Size of model ???
+    # Size of model (scale = 1, stride = 16)
     summary(model, (3, 1073, 1921))
 
     return model
