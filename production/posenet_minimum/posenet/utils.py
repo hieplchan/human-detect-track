@@ -10,7 +10,7 @@ def _process_input(source_img, scale_factor, output_stride):
     input_img = input_img * (2.0 / 255.0) - 1.0
 #
     input_img = input_img.transpose((2, 0, 1)).reshape(1, 3, params.TARGET_HEIGHT, params.TARGET_WIDTH)
-    torch.Tensor(input_img).to(params.device)
+    input_img = torch.from_numpy(input_img).float().to(params.device)
     return input_img, source_img, params.SCALE
 
 
@@ -23,5 +23,4 @@ def read_cap(cap, scale_factor, output_stride):
 
 def read_imgfile(path, scale_factor, output_stride):
     img = cv2.imread(path)
-    print(img.shape)
     return _process_input(img, scale_factor, output_stride)

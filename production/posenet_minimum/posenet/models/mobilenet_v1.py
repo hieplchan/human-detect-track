@@ -110,4 +110,7 @@ class MobileNetV1(nn.Module):
     def forward(self, x):
         x = self.features(x)
         heatmap = torch.sigmoid(self.heatmap(x))
-        return heatmap
+        offset = self.offset(x)
+        displacement_fwd = self.displacement_fwd(x)
+        displacement_bwd = self.displacement_bwd(x)
+        return heatmap, offset, displacement_fwd, displacement_bwd
