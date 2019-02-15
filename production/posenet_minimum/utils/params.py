@@ -2,8 +2,9 @@ import numpy as np
 import time
 import cv2
 import os
+import torch
 
-from posenet_minimum import ROOT_DIR
+from posenet_minimum import *
 
 """ IMAGE VIDEO TEST PARAMS """
 CAM_WIDTH = 1920 #960
@@ -22,6 +23,7 @@ lk_params = dict(winSize = (15, 15),
 TRIANGLE_WIDE = 10
 
 """ POSENET PARAMS """
+device = torch.device('cuda')
 POSENET_MODEL_NUM = 50
 SCALE_FACTOR = 1
 OUTPUT_STRIDE = 16

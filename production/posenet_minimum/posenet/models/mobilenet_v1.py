@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 from collections import OrderedDict
 
-''' CONVOLUTION LAYER '''
+''' CONVOLUTION LAYER TYPE '''
 
 class InputConv(nn.Module):
     def __init__(self, inp, outp, k=3, stride=1, dilation=1):

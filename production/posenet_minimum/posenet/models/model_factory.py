@@ -1,14 +1,16 @@
-import torch
 import os
+import torch
 
 from .mobilenet_v1 import MobileNetV1
 from posenet_minimum import POSENET_MODEL_DIR
+from posenet_minimum.utils.params import device
 
-def load_model(model_id, output_stride, model_dir=POSENET_MODEL_DIR):
-    model_path = os.path.join(model_dir, 'mobilenet_v1_050.pth')
+def load_model(output_stride):
+    model_path = os.path.join(POSENET_MODEL_DIR, 'mobilenet_v1_050_gpu.pth')
 
     model = MobileNetV1(output_stride=output_stride)
-    load_dict = torch.load(model_path)
-    model.load_state_dict(load_dict)
+    model.load_state_dict(torch.load(model_path))
+    model.to(device)
+    print('Is CUDA: ' + str(next(model.parameters()).is_cuda))
 
     return model

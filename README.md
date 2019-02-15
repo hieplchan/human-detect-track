@@ -7,6 +7,8 @@ pip install opencv-contrib-python==3.4.5.20
 tree -L 1
 pip install gpustat
 watch -n0,2 gpustat -cp
+htop -p PID
+setw -g mouse on
 ```
 
 # 1. POSENET BASE DETECTION TEST:
