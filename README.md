@@ -5,6 +5,8 @@
 pip install opencv-python==3.4.5.20
 pip install opencv-contrib-python==3.4.5.20
 tree -L 1
+pip install gpustat
+watch -n0,2 gpustat -cp
 ```
 
 # 1. POSENET BASE DETECTION TEST:
@@ -22,7 +24,3 @@ conda deactivate
 sudo update-alternatives --config gcc
 python setup.py bdist_wheel
 ```
-
-export PATH=/usr/local/cuda-9.0/bin${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
-export PATH="/home/hiep/anaconda3/bin:$PATH"
