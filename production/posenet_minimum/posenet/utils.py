@@ -21,7 +21,13 @@ def read_cap(cap, scale_factor, output_stride):
         raise IOError("webcam failure")
     return _process_input(img, scale_factor, output_stride)
 
-
 def read_imgfile(path, scale_factor, output_stride):
     img = cv2.imread(path)
     return _process_input(img, scale_factor, output_stride)
+
+def show_image(name, img):
+    cv2.imshow(name, img)
+    cv2.waitKey(1)
+    # while(True):
+    #     if cv2.waitKey(1) & 0xFF == ord('q'):
+    #         break
