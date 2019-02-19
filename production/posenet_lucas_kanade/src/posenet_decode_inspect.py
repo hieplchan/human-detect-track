@@ -120,13 +120,13 @@ def main_processing(input_image, draw_image, output_scale):
         print('Compute time: ' + str((stop_time - start_time)*1000))
 
         # Features inspection
-        feature_inspection(features, draw_image)
+        # feature_inspection(features, draw_image)
 
         # Heatmap result inspection
-        # overlay_img = heatmap_inspection(heatmaps_result, draw_image, SCALE_FACTOR, OUTPUT_STRIDE)
+        overlay_img = heatmap_inspection(heatmaps_result, draw_image, SCALE_FACTOR, OUTPUT_STRIDE)
 
         # Decode human body inspection
-        # decode_inspection(heatmaps_result1, draw_image, SCALE_FACTOR, OUTPUT_STRIDE, offsets_result, displacement_fwd_result, displacement_bwd_result, overlay_img)
+        decode_inspection(heatmaps_result1, draw_image, SCALE_FACTOR, OUTPUT_STRIDE, offsets_result, displacement_fwd_result, displacement_bwd_result, overlay_img)
 
 if __name__ == "__main__":
     print('***** START PROGRAMME *****')

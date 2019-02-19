@@ -32,33 +32,8 @@ def build_part_with_score_torch(score_threshold, local_max_radius, scores):
     sort_idx = torch.argsort(scores_vec, descending=True)
     return scores_vec[sort_idx], max_loc_idx[sort_idx]
 
-
-# FIXME leaving here as reference for now
-# def build_part_with_score_fast(score_threshold, local_max_radius, scores):
-#     parts = []
-#     num_keypoints = scores.shape[0]
-#     lmd = 2 * local_max_radius + 1
-#
-#     # NOTE it seems faster to iterate over the keypoints and perform maximum_filter
-#     # on each subarray vs doing the op on the full score array with size=(lmd, lmd, 1)
-#     for keypoint_id in range(num_keypoints):
-#         kp_scores = scores[keypoint_id, :, :].copy()
-#         kp_scores[kp_scores < score_threshold] = 0.
-#         max_vals = ndi.maximum_filter(kp_scores, size=lmd, mode='constant')
-#         max_loc = np.logical_and(kp_scores == max_vals, kp_scores > 0)
-#         max_loc_idx = max_loc.nonzero()
-#         for y, x in zip(*max_loc_idx):
-#             parts.append((
-#                 scores[keypoint_id, y, x],
-#                 keypoint_id,
-#                 np.array((y, x))
-#             ))
-#
-#    return parts
-
-
 def decode_multiple_poses(
-        scores, offsets, displacements_fwd, displacements_bwd, output_stride, draw_image,
+        heatmaps_result, offsets, displacements_fwd, displacements_bwd, output_stride, draw_image,
         max_pose_detections=10, score_threshold=0.5, nms_radius=20, min_pose_score=0.5):
     '''
     scores: heatmap
@@ -66,37 +41,14 @@ def decode_multiple_poses(
 
     print('----- Decode multi pose -----')
 
-    # perform part scoring step on GPU as it's expensive
-    # TODO determine how much more of this would be worth performing on the GPU
-    part_scores, part_idx = build_part_with_score_torch(score_threshold, LOCAL_MAXIMUM_RADIUS, scores)
+    part_scores, part_idx = build_part_with_score_torch(score_threshold, LOCAL_MAXIMUM_RADIUS, heatmaps_result)
     part_scores = part_scores.cpu().numpy()
     part_idx = part_idx.cpu().numpy()
 
-    # print('# Function build_part_with_score_torch')
-    # # part_scores: confidence scores of n point (> threshole)
-    # # part_idx: location of point [part order, x, y]
-    # print(scores.shape)
-    # print(part_scores.shape)
-    # print(part_idx.shape)
-    # print(part_scores[0])
-    # print(part_idx[0])
-    #
-    # for point in part_idx:
-    #     print(str(point[1]*16) + ":" + str(point[2]*16))
-    #     cv2.rectangle(draw_image,
-    #                     (point[2]*16 - 2, point[1]*output_stride - 2),
-    #                     (point[2]*output_stride + 2,point[1]*output_stride + 2),
-    #                     (0, 0, 255),
-    #                     -1)
-    # cv2.imshow('Test', draw_image)
-    # while(True):
-    #     if cv2.waitKey(1) & 0xFF == ord('q'):
-    #         break
 
-
-    scores = scores.cpu().numpy()
-    height = scores.shape[1] #68
-    width = scores.shape[2] #121
+    heatmaps_result = heatmaps_result.cpu().numpy()
+    height = heatmaps_result.shape[1] #68
+    width = heatmaps_result.shape[2] #121
 
     # change dimensions from (x, h, w) to (x//2, h, w, 2) to allow return of complete coord array
     offsets = offsets.cpu().numpy().reshape(2, -1, height, width).transpose((1, 2, 3, 0))
@@ -119,7 +71,7 @@ def decode_multiple_poses(
 
         keypoint_scores, keypoint_coords = decode_pose(
             root_score, root_id, root_image_coords,
-            scores, offsets, output_stride,
+            heatmaps_result, offsets, output_stride,
             displacements_fwd, displacements_bwd)
 
         pose_score = get_instance_score_fast(

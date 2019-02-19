@@ -4,6 +4,7 @@ import numpy as np
 
 from posenet_minimum.utils import params
 from posenet_minimum.utils.params import device
+from .constants import *
 
 
 def _process_input(source_img, scale_factor, output_stride):
