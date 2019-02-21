@@ -20,7 +20,7 @@ VIDEO_PATH = '/home/hiep/Desktop/Tracking_CCTV/CCTV_Data/Video/'
 # INPUT_IMG_TEST_DIR = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Image/'
 # VIDEO_PATH = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/'
 OUTPUT_VIDEO_PATH = ROOT_DIR + '/output/'
-VIDEO_NAME = '6.mp4'
+VIDEO_NAME = '2.mp4'
 
 """ LUCAS KANADE PARAMS """
 # Lucas kanade params
@@ -35,7 +35,7 @@ device = torch.device('cuda')
 POSENET_MODEL_NUM = 50
 SCALE_FACTOR = 0.5
 OUTPUT_STRIDE = 16
-THRESHOLD = 0.2
+THRESHOLD = 0.05
 
 TARGET_WIDTH, TARGET_HEIGHT = valid_resolution(CAM_WIDTH*SCALE_FACTOR, CAM_HEIGHT*SCALE_FACTOR, OUTPUT_STRIDE)
 SCALE = np.array([CAM_HEIGHT/TARGET_HEIGHT, CAM_WIDTH/TARGET_WIDTH])

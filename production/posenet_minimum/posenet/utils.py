@@ -20,7 +20,7 @@ def _process_input(source_img, scale_factor, output_stride):
 def read_cap(cap, scale_factor, output_stride):
     res, img = cap.read()
     if not res:
-        raise IOError("Video Error")
+        raise IOError("webcam failure")
     return _process_input(img, scale_factor, output_stride)
 
 def read_imgfile(path, scale_factor, output_stride):
