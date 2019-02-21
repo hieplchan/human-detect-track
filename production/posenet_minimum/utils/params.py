@@ -15,12 +15,12 @@ def valid_resolution(width, height, output_stride):
 CAM_WIDTH = 1920
 CAM_HEIGHT = 1080
 
-INPUT_IMG_TEST_DIR = '/home/hiep/Desktop/tracking_cctv/CCTV_Data/Image/'
-VIDEO_PATH = '/home/hiep/Desktop/tracking_cctv/CCTV_Data/Video/'
+INPUT_IMG_TEST_DIR = '/home/hiep/Desktop/Tracking_CCTV/CCTV_Data/Image/'
+VIDEO_PATH = '/home/hiep/Desktop/Tracking_CCTV/CCTV_Data/Video/'
 # INPUT_IMG_TEST_DIR = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Image/'
 # VIDEO_PATH = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/'
 OUTPUT_VIDEO_PATH = ROOT_DIR + '/output/'
-VIDEO_NAME = '3.mp4'
+VIDEO_NAME = '2.mp4'
 
 """ LUCAS KANADE PARAMS """
 # Lucas kanade params

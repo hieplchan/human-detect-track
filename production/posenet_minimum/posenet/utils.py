@@ -8,6 +8,7 @@ from .constants import *
 
 
 def _process_input(source_img, scale_factor, output_stride):
+    source_img = cv2.normalize(source_img, None, 0, 255, cv2.NORM_MINMAX)
     input_img = cv2.resize(source_img, (params.TARGET_WIDTH, params.TARGET_HEIGHT), interpolation=cv2.INTER_LINEAR)
     input_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB).astype(np.float32)
     input_img = input_img * (2.0 / 255.0) - 1.0

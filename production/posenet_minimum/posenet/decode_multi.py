@@ -52,6 +52,7 @@ def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacem
 
     squared_nms_radius = nms_radius ** 2
     pose_count = 0
+    boxs = []
     pose_scores = np.zeros(max_pose_detections)
     pose_keypoint_scores = np.zeros((max_pose_detections, NUM_KEYPOINTS))
     pose_keypoint_coords = np.zeros((max_pose_detections, NUM_KEYPOINTS, 2))
@@ -81,11 +82,26 @@ def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacem
             pose_keypoint_scores[pose_count, :] = keypoint_scores
             pose_keypoint_coords[pose_count, :, :] = keypoint_coords
             pose_count += 1
+            print(pose_score)
+            boxs.append(getBoundingBoxPoints(keypoint_coords))
 
-        if pose_count >= max_pose_detections:
-            break
+        # if pose_count >= max_pose_detections:
+        #     break
 
-    return pose_scores, pose_keypoint_scores, pose_keypoint_coords
+    print(pose_count)
+
+    return pose_scores, pose_keypoint_scores, pose_keypoint_coords, boxs
+
+def getBoundingBoxPoints(keypoint_coords):
+
+    keypoint_coords = keypoint_coords/params.SCALE_FACTOR
+    keypoint_coords = keypoint_coords.astype(np.int32)
+    maxY = keypoint_coords[:,0].max()
+    minY = keypoint_coords[:,0].min()
+    maxX = keypoint_coords[:,1].max()
+    minX = keypoint_coords[:,1].min()
+
+    return [maxX, minX, maxY, minY]
 
 def draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score, min_part_score):
 
@@ -109,7 +125,28 @@ def draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, 
         out_img = cv2.drawKeypoints(
             out_img, cv_keypoints, outImage=np.array([]), color=(255, 255, 0),
             flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    # out_img = cv2.polylines(out_img, adjacent_keypoints, isClosed=False, color=(255, 255, 0))
+    out_img = cv2.polylines(out_img, adjacent_keypoints, isClosed=False, color=(255, 255, 0))
+    return out_img, cv_keypoints
+
+def draw_keypoint(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score, min_part_score):
+    out_img = draw_image
+    cv_keypoints = []
+
+    keypoint_coords[:, :, :] = keypoint_coords[:, :, :]/params.SCALE_FACTOR
+
+    for ii, score in enumerate(pose_scores):
+        if score < min_pose_score:
+            continue
+
+        for ks, kc in zip(keypoint_scores[ii, :], keypoint_coords[ii, :, :]):
+            if ks < min_part_score:
+                continue
+            cv_keypoints.append(cv2.KeyPoint(kc[1], kc[0], 10.))
+
+    if cv_keypoints:
+        out_img = cv2.drawKeypoints(
+            out_img, cv_keypoints, outImage=np.array([]), color=(255, 255, 0),
+            flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     return out_img, cv_keypoints
 
 def get_adjacent_keypoints(keypoint_scores, keypoint_coords, min_confidence=0.1):
