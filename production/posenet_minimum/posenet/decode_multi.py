@@ -82,13 +82,13 @@ def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacem
             pose_keypoint_scores[pose_count, :] = keypoint_scores
             pose_keypoint_coords[pose_count, :, :] = keypoint_coords
             pose_count += 1
-            print(pose_score)
+            # print(pose_score)
             boxs.append(getBoundingBoxPoints(keypoint_coords))
 
         # if pose_count >= max_pose_detections:
         #     break
 
-    print(pose_count)
+    # print(pose_count)
 
     return pose_scores, pose_keypoint_scores, pose_keypoint_coords, boxs
 

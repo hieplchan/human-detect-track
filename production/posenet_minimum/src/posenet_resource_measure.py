@@ -7,6 +7,10 @@ import cv2
 
 img_path = params.INPUT_IMG_TEST_DIR + '1.jpg'
 cap = cv2.VideoCapture(params.VIDEO_PATH + params.VIDEO_NAME)
+
+fourcc = cv2.VideoWriter_fourcc(*'XVID')
+video = cv2.VideoWriter("output/output.avi", fourcc, 30,(params.CAM_WIDTH, params.CAM_HEIGHT))
+
 import numpy as np
 
 model = posenet.load_model(params.OUTPUT_STRIDE)
@@ -37,26 +41,32 @@ if __name__ == "__main__":
                                                                 draw_image,
                                                                 max_pose_detections = 50,
                                                                 score_threshold = params.THRESHOLD,
-                                                                nms_radius = 50,
-                                                                min_pose_score=0.5)
+                                                                nms_radius = 20,
+                                                                min_pose_score=params.THRESHOLD)
+            stop = time.time()
 
-            decoded_image, keypoint = posenet.draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score=0.05, min_part_score=0.05)
+            decoded_image, keypoint = posenet.draw_keypoint(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score=params.THRESHOLD, min_part_score=params.THRESHOLD)
 
             for box in boxs:
                 decoded_image = cv2.rectangle(decoded_image, (box[1], box[3]), (box[0], box[2]), (0,255,0), 3)
-                print(box)
+                # print(box)
+
             point_to_track = np.array([keypoint[idx].pt for idx in range(0, len(keypoint))])
             # print(point_to_track.shape)
 
-            stop = time.time()
+
             # print((stop - start)*1000)
             time_measure.append((stop - start)*1000)
 
             # posenet.utils.show_image('draw_image', draw_image)
             # posenet.utils.show_image('Pose estimation', decoded_image)
             count = count + 1
-            cv2.imwrite('output/' + str(count) + '.png', decoded_image)
-            # print(count)
-            # print(sum(time_measure)/len(time_measure))
+            # cv2.imwrite('output/' + str(count) + '.png', decoded_image)
+            video.write(decoded_image)
+            if (count == 700):
+                video.release()
+                exit()
+            print(count)
+            print(sum(time_measure)/len(time_measure))
 
     time.sleep(60)
