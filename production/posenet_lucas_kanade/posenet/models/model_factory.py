@@ -34,9 +34,9 @@ def load_model(model_id, output_stride, model_dir=POSENET_MODEL_DIR):
     # print(type(a))
 
     # Check if model is using CUDA
-    print(next(model.parameters()).is_cuda)
+    # print(next(model.parameters()).is_cuda)
 
     # Size of model (scale = 1, stride = 16)
-    summary(model, (3, 1073, 1921))
+    # summary(model, (3, 1073, 1921))
 
     return model

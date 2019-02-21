@@ -1,11 +1,12 @@
-from .decode import *
-from .constants import *
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import cv2
+import numpy as np
 
-from posenet_minimum.utils import params
+from posenet import params
+from posenet import pose_constants
+from posenet.decode import decode_pose
 
 def within_nms_radius_fast(pose_coords, squared_nms_radius, point):
     if not pose_coords.shape[0]:
@@ -33,10 +34,10 @@ def build_part_with_score_torch(score_threshold, local_max_radius, heatmaps_resu
     sort_idx = torch.argsort(scores_vec, descending=True)
     return scores_vec[sort_idx], max_loc_idx[sort_idx]
 
-def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacements_bwd, output_stride, draw_image,
+def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacements_bwd, draw_image,
                             max_pose_detections, score_threshold, nms_radius, min_pose_score):
 
-    part_scores, part_idx = build_part_with_score_torch(score_threshold, LOCAL_MAXIMUM_RADIUS, heatmaps_result)
+    part_scores, part_idx = build_part_with_score_torch(score_threshold, pose_constants.LOCAL_MAXIMUM_RADIUS, heatmaps_result)
 
     part_scores = part_scores.cpu().numpy()
     part_idx = part_idx.cpu().numpy()
@@ -54,21 +55,21 @@ def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacem
     pose_count = 0
     boxs = []
     pose_scores = np.zeros(max_pose_detections)
-    pose_keypoint_scores = np.zeros((max_pose_detections, NUM_KEYPOINTS))
-    pose_keypoint_coords = np.zeros((max_pose_detections, NUM_KEYPOINTS, 2))
+    pose_keypoint_scores = np.zeros((max_pose_detections, pose_constants.NUM_KEYPOINTS))
+    pose_keypoint_coords = np.zeros((max_pose_detections, pose_constants.NUM_KEYPOINTS, 2))
 
     for root_score, (root_id, root_coord_y, root_coord_x) in zip(part_scores, part_idx):
         root_coord = np.array([root_coord_y, root_coord_x])
-        root_image_coords = root_coord * output_stride + offsets[root_id, root_coord_y, root_coord_x]
+        root_image_coords = root_coord * params.OUTPUT_STRIDE + offsets[root_id, root_coord_y, root_coord_x]
 
         if within_nms_radius_fast(
                 pose_keypoint_coords[:pose_count, root_id, :], squared_nms_radius, root_image_coords):
             continue
 
-        keypoint_scores, keypoint_coords = decode_pose(
-            root_score, root_id, root_image_coords,
-            heatmaps_result, offsets, output_stride,
-            displacements_fwd, displacements_bwd)
+        keypoint_scores, keypoint_coords = decode_pose(root_score,
+                                                root_id, root_image_coords,
+                                                heatmaps_result, offsets,
+                                                displacements_fwd, displacements_bwd)
 
         pose_score = get_instance_score_fast(
             pose_keypoint_coords[:pose_count, :, :], squared_nms_radius, keypoint_scores, keypoint_coords)

@@ -20,9 +20,11 @@ setw -g mouse on
 ```
 conda create -n python36_gpu python=3.6  
 source activate python36_gpu  
+source activate python36_cpu
+source activate python36_mkl_cpu
 conda deactivate  
-conda create -n python36_mkl_gpu python=3.6
-source activate python36_mkl_gpu  
+conda create -n python36_mkl_cpu python=3.6
+source activate python36_mkl_gpu   
 conda install numpy -c intel --no-update-deps
 ```
 ```

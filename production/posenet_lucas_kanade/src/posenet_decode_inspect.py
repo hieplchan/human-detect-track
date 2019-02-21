@@ -27,25 +27,25 @@ def main():
     ''' Image folder test '''
     filenames = [f.path for f in os.scandir(INPUT_IMG_TEST_DIR) if f.is_file() and f.path.endswith(('.png', '.jpg'))]
 
-    for f in filenames:
-        # Convert draw_image (HEIGHT, WIDTH, 3) to input_image (1, 3, ~HEIGHT*SCALE_FACTOR, ~WIDTH*SCALE_FACTOR) - scale [~1/SCALE_FACTOR ~1/SCALE_FACTOR]
-        input_image, draw_image, output_scale = posenet.read_imgfile(f, scale_factor = SCALE_FACTOR, output_stride = OUTPUT_STRIDE)
-        main_processing(input_image, draw_image, output_scale)
+    # for f in filenames:
+    #     # Convert draw_image (HEIGHT, WIDTH, 3) to input_image (1, 3, ~HEIGHT*SCALE_FACTOR, ~WIDTH*SCALE_FACTOR) - scale [~1/SCALE_FACTOR ~1/SCALE_FACTOR]
+    #     input_image, draw_image, output_scale = posenet.read_imgfile(f, scale_factor = SCALE_FACTOR, output_stride = OUTPUT_STRIDE)
+    #     main_processing(input_image, draw_image, output_scale)
 
     ''' Video file test '''
-    # print(VIDEO_PATH + VIDEO_NAME)
-    # cap = cv2.VideoCapture(VIDEO_PATH + VIDEO_NAME)
-    # cap.set(3, CAM_WIDTH)
-    # cap.set(4, CAM_HEIGHT)
-    # while cap.isOpened():
-    #     input_image, draw_image, output_scale = posenet.read_cap(cap, scale_factor = SCALE_FACTOR, output_stride = OUTPUT_STRIDE)
-    #     main_processing(input_image, draw_image, output_scale)
+    print(VIDEO_PATH + VIDEO_NAME)
+    cap = cv2.VideoCapture(VIDEO_PATH + VIDEO_NAME)
+    cap.set(3, CAM_WIDTH)
+    cap.set(4, CAM_HEIGHT)
+    while cap.isOpened():
+        input_image, draw_image, output_scale = posenet.read_cap(cap, scale_factor = SCALE_FACTOR, output_stride = OUTPUT_STRIDE)
+        main_processing(input_image, draw_image, output_scale)
     # video.release()
 
 def feature_inspection(features, draw_image):
     print('----- Features inspection -----')
-    print(features.shape)
-    print(features[0][1].shape)
+    # print(features.shape)
+    # print(features[0][1].shape)
 
     for i in range(255, -1, -1):
         print('Feature num: ' + str(i))
@@ -114,10 +114,9 @@ def main_processing(input_image, draw_image, output_scale):
         start_time = time.time()
         # Posenet compute - return heatmap torch.Size([1, 17, int(HEIGHT*SCALE_FACTOR/OUTPUT_STRIDE + 1), int(WIDTH*SCALE_FACTOR/OUTPUT_STRIDE + 1)])
         features, heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
-
-        heatmaps_result1 = heatmaps_result
         stop_time = time.time()
         print('Compute time: ' + str((stop_time - start_time)*1000))
+        heatmaps_result1 = heatmaps_result
 
         # Features inspection
         # feature_inspection(features, draw_image)

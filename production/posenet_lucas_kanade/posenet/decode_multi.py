@@ -39,7 +39,7 @@ def decode_multiple_poses(
     scores: heatmap
     '''
 
-    print('----- Decode multi pose -----')
+    # print('----- Decode multi pose -----')
 
     part_scores, part_idx = build_part_with_score_torch(score_threshold, LOCAL_MAXIMUM_RADIUS, heatmaps_result)
     part_scores = part_scores.cpu().numpy()

@@ -18,7 +18,7 @@ def _process_input(source_img, scale_factor=1.0, output_stride=16):
     input_img = input_img * (2.0 / 255.0) - 1.0
 
     input_img = input_img.transpose((2, 0, 1)).reshape(1, 3, target_height, target_width)
-    print(input_img.shape)
+    # print(input_img.shape)
     return input_img, source_img, scale
 
 

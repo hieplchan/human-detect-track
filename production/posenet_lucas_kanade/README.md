@@ -7,7 +7,6 @@ python -m posenet_lucas_kanade.utils.plot
 
 # 2. POSENET IMPLEMENT TEST:
 ```
-source activate python36_cpu  
 python -m posenet_lucas_kanade.src.posenet_decode_inspect
 python -m posenet_lucas_kanade.src.posenet_feature_inspect
 ```

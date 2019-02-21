@@ -24,7 +24,7 @@ CAM_HEIGHT = 1080 #540
 INPUT_IMG_TEST_DIR = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Image'
 VIDEO_PATH = '/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/'
 OUTPUT_VIDEO_PATH = ROOT_DIR + '/output/'
-VIDEO_NAME = '8.mp4'
+VIDEO_NAME = '1.mp4'
 
 """ LUCAS KANADE PARAMS """
 # Lucas kanade params
@@ -36,6 +36,6 @@ TRIANGLE_WIDE = 10
 
 """ POSENET PARAMS """
 POSENET_MODEL_NUM = 50
-SCALE_FACTOR = 1
+SCALE_FACTOR = 0.5
 OUTPUT_STRIDE = 16
 THRESHOLD = 0.05
