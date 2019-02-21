@@ -1,1 +1,1 @@
-python -m posenet_minimum.src.posenet_resource_measure
+python -m src.posenet_package_test
