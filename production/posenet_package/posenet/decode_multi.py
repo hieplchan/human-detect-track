@@ -70,34 +70,25 @@ def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacem
         pose_score = get_instance_score_fast(
             pose_keypoint_coords[:pose_count, :, :], squared_nms_radius, keypoint_scores, keypoint_coords)
 
-        # NOTE this isn't in the original implementation, but it appears that by initially ordering by
-        # part scores, and having a max # of detections, we can end up populating the returned poses with
-        # lower scored poses than if we discard 'bad' ones and continue (higher pose scores can still come later).
-        # Set min_pose_score to 0. to revert to original behaviour
         if min_pose_score == 0. or pose_score >= min_pose_score:
             pose_scores[pose_count] = pose_score
             pose_keypoint_scores[pose_count, :] = keypoint_scores
             pose_keypoint_coords[pose_count, :, :] = keypoint_coords
             pose_count += 1
-            # print(pose_score)
             boxs.append(getBoundingBoxPoints(keypoint_coords))
 
-        # if pose_count >= max_pose_detections:
-        #     break
-
-    # print(pose_count)
+        if pose_count >= max_pose_detections:
+            break
 
     return pose_scores, pose_keypoint_scores, pose_keypoint_coords, boxs
 
 def getBoundingBoxPoints(keypoint_coords):
-
     keypoint_coords = keypoint_coords/SCALE_FACTOR
     keypoint_coords = keypoint_coords.astype(np.int32)
     maxY = keypoint_coords[:,0].max()
     minY = keypoint_coords[:,0].min()
     maxX = keypoint_coords[:,1].max()
     minX = keypoint_coords[:,1].min()
-
     return [maxX, minX, maxY, minY]
 
 def draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score, min_part_score):
