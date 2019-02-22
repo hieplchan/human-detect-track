@@ -4,8 +4,9 @@ import torch.nn.functional as F
 
 from collections import OrderedDict
 
+''' CONVOLUTION LAYER TYPE '''
+
 class InputConv(nn.Module):
-    ''' Input Layer '''
     def __init__(self, inp, outp, k=3, stride=1, dilation=1):
         super(InputConv, self).__init__()
         self.conv = nn.Conv2d(
@@ -15,7 +16,6 @@ class InputConv(nn.Module):
         return F.relu6(self.conv(x))
 
 class SeperableConv(nn.Module):
-    ''' Depthwise and Pointwise Layer '''
     def __init__(self, inp, outp, k=3, stride=1, dilation=1):
         super(SeperableConv, self).__init__()
         self.depthwise = nn.Conv2d(
@@ -32,6 +32,7 @@ def _get_padding(kernel_size, stride, dilation):
     padding = ((stride - 1) + dilation * (kernel_size - 1)) // 2
     return padding
 
+''' MODEL ARCHITECTURE '''
 MOBILE_NET_V1_50 = [
     (InputConv, 3, 16, 2),
     (SeperableConv, 16, 32, 1),
@@ -83,6 +84,8 @@ def _to_output_strided_layers(convolution_def, output_stride):
         block_id += 1
 
     return buff
+
+''' POSENET MODEL USING MOBILENETV1 '''
 
 class MobileNetV1(nn.Module):
 

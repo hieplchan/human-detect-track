@@ -12,10 +12,7 @@ def within_nms_radius_fast(pose_coords, squared_nms_radius, point):
         return False
     return np.any(np.sum((pose_coords - point) ** 2, axis=1) <= squared_nms_radius)
 
-def get_instance_score_fast(
-        exist_pose_coords,
-        squared_nms_radius,
-        keypoint_scores, keypoint_coords):
+def get_instance_score_fast(exist_pose_coords, squared_nms_radius, keypoint_scores, keypoint_coords):
 
     if exist_pose_coords.shape[0]:
         s = np.sum((exist_pose_coords - keypoint_coords) ** 2, axis=2) > squared_nms_radius
@@ -82,13 +79,13 @@ def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacem
             pose_keypoint_scores[pose_count, :] = keypoint_scores
             pose_keypoint_coords[pose_count, :, :] = keypoint_coords
             pose_count += 1
-            print(pose_score)
+            # print(pose_score)
             boxs.append(getBoundingBoxPoints(keypoint_coords))
 
         # if pose_count >= max_pose_detections:
         #     break
 
-    print(pose_count)
+    # print(pose_count)
 
     return pose_scores, pose_keypoint_scores, pose_keypoint_coords, boxs
 

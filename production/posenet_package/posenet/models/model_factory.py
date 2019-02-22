@@ -1,10 +1,9 @@
 import torch
 
 from posenet.models.mobilenet_v1 import MobileNetV1
-from posenet import params
 
-def load_model():
-    model = MobileNetV1(output_stride = params.OUTPUT_STRIDE)
-    model.load_state_dict(torch.load(params.MODEL_PATH, map_location=params.DEVICE))
-    model.to(params.DEVICE)
+def load_model(model_path, output_stride, device):
+    model = MobileNetV1(output_stride = output_stride)
+    model.load_state_dict(torch.load(model_path, map_location = device))
+    model.to(device)
     return model

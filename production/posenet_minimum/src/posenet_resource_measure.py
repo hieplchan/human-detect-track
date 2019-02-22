@@ -16,11 +16,11 @@ if __name__ == "__main__":
     with torch.no_grad():
         count = 0
         time_measure = []
+        # input_image, draw_image, output_scale = posenet.read_imgfile(img_path, scale_factor = params.SCALE_FACTOR, output_stride = params.OUTPUT_STRIDE)
         # while (count == 0):
         while (True):
-
             input_image, draw_image, output_scale = posenet.read_cap(cap, scale_factor = params.SCALE_FACTOR, output_stride = params.OUTPUT_STRIDE)
-            # input_image, draw_image, output_scale = posenet.read_imgfile(img_path, scale_factor = params.SCALE_FACTOR, output_stride = params.OUTPUT_STRIDE)
+
             start = time.time()
             heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
 
@@ -40,23 +40,24 @@ if __name__ == "__main__":
                                                                 nms_radius = 50,
                                                                 min_pose_score=0.5)
 
-            decoded_image, keypoint = posenet.draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score=0.05, min_part_score=0.05)
-
-            for box in boxs:
-                decoded_image = cv2.rectangle(decoded_image, (box[1], box[3]), (box[0], box[2]), (0,255,0), 3)
-                print(box)
-            point_to_track = np.array([keypoint[idx].pt for idx in range(0, len(keypoint))])
-            # print(point_to_track.shape)
-
             stop = time.time()
+            # decoded_image, keypoint = posenet.draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score=0.05, min_part_score=0.05)
+            #
+            # for box in boxs:
+            #     decoded_image = cv2.rectangle(decoded_image, (box[1], box[3]), (box[0], box[2]), (0,255,0), 3)
+            #     print(box)
+            # point_to_track = np.array([keypoint[idx].pt for idx in range(0, len(keypoint))])
+            # # print(point_to_track.shape)
+            #
+            #
             # print((stop - start)*1000)
             time_measure.append((stop - start)*1000)
-
-            # posenet.utils.show_image('draw_image', draw_image)
-            # posenet.utils.show_image('Pose estimation', decoded_image)
-            count = count + 1
-            cv2.imwrite('output/' + str(count) + '.png', decoded_image)
-            # print(count)
-            # print(sum(time_measure)/len(time_measure))
+            #
+            # # posenet.utils.show_image('draw_image', draw_image)
+            # # posenet.utils.show_image('Pose estimation', decoded_image)
+            # count = count + 1
+            # cv2.imwrite('output/' + str(count) + '.png', decoded_image)
+            # # print(count)
+            print(sum(time_measure)/len(time_measure))
 
     time.sleep(60)
