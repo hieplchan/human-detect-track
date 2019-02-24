@@ -4,7 +4,7 @@ import numpy as np
 CAM_WIDTH = 1920
 CAM_HEIGHT = 1080
 
-DEVICE = torch.device('cuda')
+DEVICE = torch.device('cpu')
 MODEL_PATH = ''
 
 POSENET_MODEL_NUM = 50

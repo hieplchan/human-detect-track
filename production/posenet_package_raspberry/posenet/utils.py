@@ -16,6 +16,7 @@ def load(model_path, output_stride, device):
     model = MobileNetV1(output_stride = output_stride)
     model.load_state_dict(torch.load(model_path, map_location = device))
     model.to(device)
+    model.half()
     return model
 
 def process_input(source_img, targer_width, target_height, device):
@@ -25,4 +26,5 @@ def process_input(source_img, targer_width, target_height, device):
     input_img = input_img * (2.0 / 255.0) - 1.0
     input_img = input_img.transpose((2, 0, 1)).reshape(1, 3, target_height, targer_width)
     input_img = torch.as_tensor(input_img, device = device)
+    input_img = input_img.half()
     return input_img
