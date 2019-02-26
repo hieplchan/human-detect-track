@@ -32,14 +32,3 @@ def getResultPointBox(model, draw_image):
             cv_keypoints.append(cv2.KeyPoint(kc[1], kc[0], 10.))
 
     return cv_keypoints, boxs
-
-def drawResultBox(draw_image, boxs):
-    for box in boxs:
-        draw_image = cv2.rectangle(draw_image, (box[1], box[3]), (box[0], box[2]), (0,255,0), 3)
-    return draw_image
-
-def drawResultPoint(draw_image, cv_keypoints):
-    if cv_keypoints:
-        draw_image = cv2.drawKeypoints(draw_image, cv_keypoints, outImage = np.array([]), color = (255, 255, 0),
-                                        flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-    return draw_image

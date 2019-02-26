@@ -26,3 +26,16 @@ def process_input(source_img, targer_width, target_height, device):
     input_img = input_img.transpose((2, 0, 1)).reshape(1, 3, target_height, targer_width)
     input_img = torch.as_tensor(input_img, device = device)
     return input_img
+
+def drawResultBox(draw_image, boxs):
+    mean_point_list = []
+    for box in boxs:
+        draw_image = cv2.rectangle(draw_image, (box[1], box[3]), (box[0], box[2]), (0,255,0), 3)
+        mean_point_list.append(cv2.KeyPoint(box[4], box[5], 20))
+    draw_image = cv2.drawKeypoints(draw_image, mean_point_list, outImage = np.array([]), color = (0, 0, 255), flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    return draw_image
+
+def drawResultPoint(draw_image, cv_keypoints):
+    if cv_keypoints:
+        draw_image = cv2.drawKeypoints(draw_image, cv_keypoints, outImage = np.array([]), color = (255, 255, 0), flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    return draw_image

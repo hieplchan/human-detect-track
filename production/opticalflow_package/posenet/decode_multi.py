@@ -89,7 +89,11 @@ def getBoundingBoxPoints(keypoint_coords):
     minY = keypoint_coords[:,0].min()
     maxX = keypoint_coords[:,1].max()
     minX = keypoint_coords[:,1].min()
-    return [maxX, minX, maxY, minY]
+    meanX = ((maxX + minX)/2).astype(np.int32)
+    meanY = ((maxY + minY)/2).astype(np.int32)
+    # meanX = keypoint_coords[:,1].mean().astype(np.int32)
+    # meanY = keypoint_coords[:,0].mean().astype(np.int32)
+    return [maxX, minX, maxY, minY, meanX, meanY]
 
 def draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score, min_part_score):
 
