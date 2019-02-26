@@ -1,0 +1,14 @@
+certifi==2018.11.29
+cffi==1.11.5
+mkl-fft==1.0.10
+mkl-random==1.0.2
+numpy==1.16.1
+olefile==0.46
+opencv-contrib-python==3.4.5.20
+opencv-python==3.4.5.20
+Pillow==5.4.1
+pycparser==2.19
+six==1.12.0
+torch==1.0.1.post2
+torchsummary==1.5.1
+torchvision==0.2.1
