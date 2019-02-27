@@ -28,11 +28,8 @@ def process_input(source_img, targer_width, target_height, device):
     return input_img
 
 def drawResultBox(draw_image, boxs):
-    mean_point_list = []
     for box in boxs:
-        draw_image = cv2.rectangle(draw_image, (box[1], box[3]), (box[0], box[2]), (0,255,0), 3)
-        mean_point_list.append(cv2.KeyPoint(box[4], box[5], 20))
-    draw_image = cv2.drawKeypoints(draw_image, mean_point_list, outImage = np.array([]), color = (0, 0, 255), flags=cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+        draw_image = cv2.rectangle(draw_image, box[0], box[3], (0,255,0), 3)
     return draw_image
 
 def drawResultPoint(draw_image, cv_keypoints):

@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import time
 
 from posenet.decode_multi import decode_multiple_poses
 from posenet.params import SCALE_FACTOR, OUTPUT_STRIDE, THRESHOLD, TARGET_WIDTH, TARGET_HEIGHT, DEVICE
@@ -9,6 +10,7 @@ def getResultPointBox(model, draw_image):
     ''' Return good key point of multiple person '''
     input_image = process_input(draw_image, TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
     heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
+
     pose_scores, keypoint_scores, keypoint_coords, boxs = decode_multiple_poses(
                                                         heatmaps_result.squeeze(0),
                                                         offsets_result.squeeze(0),

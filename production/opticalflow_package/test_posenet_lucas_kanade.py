@@ -6,7 +6,7 @@ import posenet
 import lucas_kanade
 
 #Video load for test
-cap = cv2.VideoCapture('/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/1.mp4')
+cap = cv2.VideoCapture('/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/2.mp4')
 
 # Posenet model setting and load
 posenet.MODEL_PATH = '/media/hiep/DATA/Work_space/Tracking_CCTV/production/posenet_package/posenet/_models/mobilenet_v1_050_gpu.pth'
@@ -17,11 +17,6 @@ tracktor = lucas_kanade.Lucas_Kanade(posenet.CAM_WIDTH, posenet.CAM_HEIGHT)
 if __name__ == "__main__":
     with torch.no_grad():
         frame_num = 0
-        res, draw_image = cap.read()
-        resultPoints, resultBoxs = posenet.getResultPointBox(model, draw_image)
-        tracktor.frameUpdate(draw_image)
-        tracktor.pointUpdate(resultPoints)
-
         while (True):
             res, draw_image = cap.read()
             start = time.time()
@@ -29,9 +24,8 @@ if __name__ == "__main__":
             if ((frame_num % 30) == 0):
                 resultPoints, resultBoxs = posenet.getResultPointBox(model, draw_image)
                 decoded_image = posenet.drawResultBox(draw_image, resultBoxs)
-                # decoded_image = posenet.drawResultPoint(draw_image, resultPoints)
-                tracktor.frameUpdate(draw_image)
-                tracktor.pointUpdate(resultPoints)
+                tracktor.detectorUpdate(draw_image, resultPoints, resultBoxs)
+                decoded_image = lucas_kanade.drawResultBodiesPoint(draw_image, tracktor.bodies_points)
             else:
                 resultPoints = tracktor.pointTrackCal(draw_image)
                 # decoded_image = lucas_kanade.drawResultPoint(draw_image, resultPoints)
