@@ -19,16 +19,8 @@ class Lucas_Kanade:
         self.new_points = np.zeros((1, 2), dtype = np.float32)
         self.bodies_points = []
 
-    def pointTrackCal(self, frame):
-        ''' Calculate new list of all tracked point '''
-        self.new_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        self.new_points, status, error = cv2.calcOpticalFlowPyrLK(self.old_frame, self.new_frame, self.old_points, None, **lk_params)
-        self.old_frame = self.new_frame
-        self.old_points = self.new_points
-        return array2keypointlist(self.new_points)
-
     def detectorUpdate(self, frame, keypoints, boxs):
-        ''' Update point to track - split point per each body in frame'''
+        ''' Update point to track - split point per each body in frame '''
         self.old_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         self.old_points = keypointlist2array(keypoints)
 
@@ -41,3 +33,17 @@ class Lucas_Kanade:
             grid = list(compress(range(len(grid)), grid))
             self.bodies_points.append([tmp_new_point_list[idx] for idx in grid])
         #endregion
+
+    def pointTrackCal(self, frame):
+        ''' Calculate new list of all tracked point '''
+        self.new_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        self.new_points, status, error = cv2.calcOpticalFlowPyrLK(self.old_frame, self.new_frame, self.old_points, None, **lk_params)
+        self.old_frame = self.new_frame
+        self.old_points = self.new_points
+        return array2keypointlist(self.new_points)
+
+
+
+    def bodyTrackCal(self, frame):
+        ''' Calculate new list of each body tracked point '''
+        pass

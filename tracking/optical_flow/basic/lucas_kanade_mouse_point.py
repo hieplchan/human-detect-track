@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 vid_num = 2
-cap = cv2.VideoCapture("/media/hiep/DATA/Working/Tracking_CCTV/CCTV_Data/Video/" + str(vid_num) + ".mp4")
+cap = cv2.VideoCapture('/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/pes1.mp4')
 
 # Create old frame
 _, frame = cap.read()

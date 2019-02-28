@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 vid_num = 3
-cap = cv2.VideoCapture("/home/hiep/Tracking_CCTV/CCTV_Data/video/" + str(vid_num) + ".mp4")
+cap = cv2.VideoCapture('/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/1.mp4')
 
 # params for ShiTomasi corner detection
 feature_params = dict( maxCorners = 100,
