@@ -4,7 +4,6 @@ import torch.nn.functional as F
 import cv2
 import numpy as np
 
-from posenet.params import SCALE_FACTOR
 from posenet.pose_constants import LOCAL_MAXIMUM_RADIUS, NUM_KEYPOINTS
 from posenet.decode import decode_pose
 
@@ -30,7 +29,7 @@ def build_part_with_score_torch(score_threshold, local_max_radius, heatmaps_resu
     sort_idx = torch.argsort(scores_vec, descending=True)
     return scores_vec[sort_idx], max_loc_idx[sort_idx]
 
-def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacements_bwd, output_stride,
+def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacements_bwd, scale_factor, output_stride,
                             max_pose_detections, score_threshold, nms_radius, min_pose_score):
 
     part_scores, part_idx = build_part_with_score_torch(score_threshold, LOCAL_MAXIMUM_RADIUS, heatmaps_result)
@@ -75,15 +74,15 @@ def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacem
             pose_keypoint_scores[pose_count, :] = keypoint_scores
             pose_keypoint_coords[pose_count, :, :] = keypoint_coords
             pose_count += 1
-            boxs.append(getBoundingBoxPoints(keypoint_coords))
+            boxs.append(getBoundingBoxPoints(keypoint_coords, scale_factor))
 
         if pose_count >= max_pose_detections:
             break
 
     return pose_scores, pose_keypoint_scores, pose_keypoint_coords, boxs
 
-def getBoundingBoxPoints(keypoint_coords):
-    keypoint_coords = keypoint_coords/SCALE_FACTOR
+def getBoundingBoxPoints(keypoint_coords, scale_factor):
+    keypoint_coords = keypoint_coords/scale_factor
     keypoint_coords = keypoint_coords.astype(np.int32)
     maxY = keypoint_coords[:,0].max()
     minY = keypoint_coords[:,0].min()
@@ -91,7 +90,7 @@ def getBoundingBoxPoints(keypoint_coords):
     minX = keypoint_coords[:,1].min()
     return [(minX, minY), (minX, maxY), (maxX, minY), (maxX, maxY)]
 
-def draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score, min_part_score):
+def draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score, min_part_score, scale_factor):
 
     out_img = draw_image
     adjacent_keypoints = []
@@ -101,13 +100,13 @@ def draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, 
             continue
 
         new_keypoints = get_adjacent_keypoints(
-            keypoint_scores[ii, :], keypoint_coords[ii, :, :]/SCALE_FACTOR, min_part_score)
+            keypoint_scores[ii, :], keypoint_coords[ii, :, :]/scale_factor, min_part_score)
         adjacent_keypoints.extend(new_keypoints)
 
         for ks, kc in zip(keypoint_scores[ii, :], keypoint_coords[ii, :, :]):
             if ks < min_part_score:
                 continue
-            cv_keypoints.append(cv2.KeyPoint(kc[1]/SCALE_FACTOR, kc[0]/SCALE_FACTOR, 10. * ks))
+            cv_keypoints.append(cv2.KeyPoint(kc[1]/scale_factor, kc[0]/scale_factor, 10. * ks))
 
     if cv_keypoints:
         out_img = cv2.drawKeypoints(
@@ -116,11 +115,11 @@ def draw_skel_and_kp(draw_image, pose_scores, keypoint_scores, keypoint_coords, 
     out_img = cv2.polylines(out_img, adjacent_keypoints, isClosed=False, color=(255, 255, 0))
     return out_img, cv_keypoints
 
-def draw_keypoint(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score, min_part_score):
+def draw_keypoint(draw_image, pose_scores, keypoint_scores, keypoint_coords, min_pose_score, min_part_score, scale_factor):
     out_img = draw_image
     cv_keypoints = []
 
-    keypoint_coords[:, :, :] = keypoint_coords[:, :, :]/SCALE_FACTOR
+    keypoint_coords[:, :, :] = keypoint_coords[:, :, :]/scale_factor
 
     for ii, score in enumerate(pose_scores):
         if score < min_pose_score:
