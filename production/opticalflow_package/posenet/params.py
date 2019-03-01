@@ -1,13 +1,13 @@
 import torch
 import numpy as np
 
-CAM_WIDTH = 1920
-CAM_HEIGHT = 1080
+CAM_WIDTH = 1280
+CAM_HEIGHT = 720
 
 DEVICE = torch.device('cpu')
 MODEL_PATH = ''
 
-SCALE_FACTOR = 0.4
+SCALE_FACTOR = 0.5
 OUTPUT_STRIDE = 16
 THRESHOLD = 0.4
 
