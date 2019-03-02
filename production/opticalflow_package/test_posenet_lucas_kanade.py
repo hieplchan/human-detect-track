@@ -6,10 +6,10 @@ import posenet
 import lucas_kanade
 
 #Video load for test
-cap = cv2.VideoCapture('/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/pes1.mp4')
+cap = cv2.VideoCapture('D:/Work_space/Tracking_CCTV/CCTV_Data/Video/1.mp4')
 
 # Posenet model setting and load
-posenet.MODEL_PATH = '/media/hiep/DATA/Work_space/Tracking_CCTV/production/posenet_package/posenet/_models/mobilenet_v1_050_gpu.pth'
+posenet.MODEL_PATH = 'D:/Work_space/Tracking_CCTV/production/opticalflow_package/posenet/_models/mobilenet_v1_050_gpu.pth'
 
 model = posenet.load(posenet.MODEL_PATH, posenet.OUTPUT_STRIDE, posenet.DEVICE)
 tracktor = lucas_kanade.Lucas_Kanade(posenet.CAM_WIDTH, posenet.CAM_HEIGHT)
