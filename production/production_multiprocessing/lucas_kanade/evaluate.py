@@ -7,7 +7,7 @@ import time
 from lucas_kanade.utils import *
 from lucas_kanade.params import lk_params
 
-class Tracktor:
+class Lucas_Kanade:
     ''' Point track with Lucas Kanade '''
 
     def __init__(self, width, height):
