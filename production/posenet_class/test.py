@@ -6,10 +6,10 @@ import posenet
 import lucas_kanade
 
 #Video load for test
-cap = cv2.VideoCapture('D:/Work_space/Tracking_CCTV/CCTV_Data/Video/1.mp4')
+cap = cv2.VideoCapture('/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/1.mp4')
 
 # Posenet model setting and load
-posenet_model_path = 'D:/Work_space/Tracking_CCTV/production/posenet_class/posenet/_models/mobilenet_v1_050_cpu.pth'
+posenet_model_path = '/media/hiep/DATA/Work_space/Tracking_CCTV/production/posenet_class/posenet/_models/mobilenet_v1_050_cpu.pth'
 
 detector = posenet.Detector(1920, 1080)
 detector.load_model(posenet_model_path)

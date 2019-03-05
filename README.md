@@ -8,8 +8,10 @@ tree -L 1
 pip install gpustat
 watch -n0,2 gpustat -cp
 htop -p PID
+htop -u hiep
 setw -g mouse on
 ```
+Run htop, Press F5 to enter tree mode, then F4 to filter, and type in python
 
 # 1. POSENET BASE DETECTION TEST:
 [PoseNet Pytorch](https://github.com/rwightman/posenet-pytorch)  
