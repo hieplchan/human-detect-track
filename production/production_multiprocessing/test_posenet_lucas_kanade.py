@@ -1,22 +1,25 @@
 import time
 import cv2
 import torch
-from torch.multiprocessing import Pool
+import torch.multiprocessing as mp
 
 import posenet
 from posenet.params import SCALE_FACTOR, OUTPUT_STRIDE, THRESHOLD, TARGET_WIDTH, TARGET_HEIGHT, DEVICE
 from posenet.decode_multi import decode_multiple_poses
 import lucas_kanade
+import time
 
 
 #Video load for test
-cap = cv2.VideoCapture('/home/hiep/Desktop/Tracking_CCTV/CCTV_Data/Video/1.mp4')
+cap = cv2.VideoCapture('/home/hiep/Desktop/Tracking_CCTV/CCTV_Data/Video/2.mp4')
 
 # Posenet model setting and load
 posenet.MODEL_PATH = '/home/hiep/Desktop/Tracking_CCTV/production/opticalflow_package/posenet/_models/mobilenet_v1_050_gpu.pth'
 
 def getResultPointBox(input):
     ''' Return good key point of multiple person '''
+    time_mark = time.time()
+    print(input[2])
     heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = input[0](input[1])
     pose_scores, keypoint_scores, keypoint_coords, boxs = decode_multiple_poses(
                                                         heatmaps_result.squeeze(0),
@@ -41,6 +44,8 @@ def getResultPointBox(input):
             cv_keypoints.append(cv2.KeyPoint(kc[1], kc[0], 10.))
 
     # return cv_keypoints, boxs
+    print((time.time() - time_mark)*1000)
+    time.sleep(1)
 
 model = posenet.load(posenet.MODEL_PATH, posenet.OUTPUT_STRIDE, posenet.DEVICE)
 model.share_memory()
@@ -49,18 +54,23 @@ tracktor = lucas_kanade.Lucas_Kanade(posenet.CAM_WIDTH, posenet.CAM_HEIGHT)
 if __name__ == "__main__":
     with torch.no_grad():
         # frame_num = 0
-        res, draw_image = cap.read()
-        input_image = posenet.process_input(draw_image, TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
         array_of_input_image = []
-        for i in range(0, 1000):
-            array_of_input_image.append([model, input_image])
+        for i in range(0, 500):
+            res, draw_image = cap.read()
+            input_image = posenet.process_input(draw_image, TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
+            array_of_input_image.append([model, input_image, i])
 
         print('Load done')
         print(len(array_of_input_image))
         start = time.time()
 
-        with Pool(1) as p:
+        with mp.Pool(processes=1) as p:
             p.map(getResultPointBox, array_of_input_image)
+
+
+        # for input in array_of_input_image:
+        #     getResultPointBox(input)
+
         stop = time.time()
         print((stop - start)*1000)
 
