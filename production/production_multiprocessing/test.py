@@ -15,11 +15,16 @@ cap = cv2.VideoCapture('/home/hiep/Desktop/Tracking_CCTV/CCTV_Data/Video/1.mp4')
 # Posenet model setting and load
 posenet.MODEL_PATH = '/home/hiep/Desktop/Tracking_CCTV/production/opticalflow_package/posenet/_models/mobilenet_v1_050_gpu.pth'
 
+global model
+model = posenet.load(posenet.MODEL_PATH, posenet.OUTPUT_STRIDE, posenet.DEVICE)
+model.share_memory()
+
 def getResultPointBox(input):
     ''' Return good key point of multiple person '''
     time_mark = time.time()
     # print(input[2])
-    heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = input[0](input[1])
+    global model
+    heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input[0])
     pose_scores, keypoint_scores, keypoint_coords, boxs = decode_multiple_poses(
                                                         heatmaps_result.squeeze(0),
                                                         offsets_result.squeeze(0),
@@ -43,21 +48,19 @@ def getResultPointBox(input):
             cv_keypoints.append(cv2.KeyPoint(kc[1], kc[0], 10.))
     print((time.time() - time_mark)*1000)
 
-    # return cv_keypoints, boxs
+    # return [cv_keypoints, boxs]
 
-model = posenet.load(posenet.MODEL_PATH, posenet.OUTPUT_STRIDE, posenet.DEVICE)
-model.share_memory()
 tracktor = lucas_kanade.Lucas_Kanade(posenet.CAM_WIDTH, posenet.CAM_HEIGHT)
 
 if __name__ == "__main__":
-    mp.set_start_method('spawn')
+    mp.set_start_method('forkserver')
     with torch.no_grad():
         # frame_num = 0
         array_of_input_image = []
-        for i in range(0, 200):
+        for i in range(0, 500):
             res, draw_image = cap.read()
             input_image = posenet.process_input(draw_image, TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
-            array_of_input_image.append([model, input_image, i])
+            array_of_input_image.append([input_image, i])
 
         print('Load done')
         print(len(array_of_input_image))
@@ -65,6 +68,12 @@ if __name__ == "__main__":
 
         with mp.Pool(processes=1) as p:
             p.map(getResultPointBox, array_of_input_image)
+
+        # with mp.Pool(processes=1) as p:
+        #     p.apply_async(getResultPointBox, array_of_input_image)
+        #
+        # p.close()
+        # p.join()
 
         # for input in array_of_input_image:
         #     getResultPointBox(input)
