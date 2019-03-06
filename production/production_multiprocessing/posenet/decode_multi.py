@@ -35,17 +35,17 @@ def decode_multiple_poses(heatmaps_result, offsets, displacements_fwd, displacem
 
     part_scores, part_idx = build_part_with_score_torch(score_threshold, LOCAL_MAXIMUM_RADIUS, heatmaps_result)
 
-    part_scores = part_scores.cpu().numpy()
-    part_idx = part_idx.cpu().numpy()
+    part_scores = part_scores.cpu().detach().numpy()
+    part_idx = part_idx.cpu().detach().numpy()
 
-    heatmaps_result = heatmaps_result.cpu().numpy()
+    heatmaps_result = heatmaps_result.cpu().detach().numpy()
     height = heatmaps_result.shape[1] #68
     width = heatmaps_result.shape[2] #121
 
     # change dimensions from (x, h, w) to (x//2, h, w, 2) to allow return of complete coord array
-    offsets = offsets.cpu().numpy().reshape(2, -1, height, width).transpose((1, 2, 3, 0))
-    displacements_fwd = displacements_fwd.cpu().numpy().reshape(2, -1, height, width).transpose((1, 2, 3, 0))
-    displacements_bwd = displacements_bwd.cpu().numpy().reshape(2, -1, height, width).transpose((1, 2, 3, 0))
+    offsets = offsets.cpu().detach().numpy().reshape(2, -1, height, width).transpose((1, 2, 3, 0))
+    displacements_fwd = displacements_fwd.cpu().detach().numpy().reshape(2, -1, height, width).transpose((1, 2, 3, 0))
+    displacements_bwd = displacements_bwd.cpu().detach().numpy().reshape(2, -1, height, width).transpose((1, 2, 3, 0))
 
     squared_nms_radius = nms_radius ** 2
     pose_count = 0
