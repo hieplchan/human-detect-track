@@ -24,14 +24,13 @@ model.share_memory()
 def getResultPointBox(queue):
     ''' Return good key point of multiple person '''
     global model
-    frame_id = 0
 
     while(True):
-        input = queue.get(True)
         time_mark = time.time()
+        input = queue.get(True)
 
         #region Posenet Decode
-        input_image = posenet.process_input(input, TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
+        input_image = posenet.process_input(input[0], TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
         heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
         pose_scores, keypoint_scores, keypoint_coords, boxs = decode_multiple_poses(
                                                             heatmaps_result.squeeze(0),
@@ -58,18 +57,27 @@ def getResultPointBox(queue):
 
         # return [cv_keypoints, boxs]
 
-        print('Pose process: ' + str(os.getpid()) + ' - ' + str(frame_id) + ' - ' + str((time.time() - time_mark)*1000))
-        frame_id += 1
-        time.sleep(0.2)
+        print('Pose process: ' + str(os.getpid()) + ' - ' + str(input[1]) + ' - ' + str((time.time() - time_mark)*1000))
 
 if __name__ == "__main__":
     mp.set_start_method('forkserver')
-    image_queue = mp.Queue(maxsize = 30)
+    image_queue = mp.Queue(maxsize = 1)
+    frame_id = 0
 
     with torch.no_grad():
         the_pool = mp.Pool(1, getResultPointBox,(image_queue,))
         res, draw_image = cap.read()
 
-        while(True):
+        # while(True):
+        #     print('Main process: ' + str(os.getpid()))
+        #     image_queue.put([draw_image, frame_id])
+        #     frame_id += 1
+
+        main_time_mark = time.time()
+        for i in range(0, 100):
+            res, draw_image = cap.read()
             print('Main process: ' + str(os.getpid()))
-            image_queue.put(draw_image)
+            image_queue.put([draw_image, frame_id])
+            frame_id += 1
+
+        print((time.time() - main_time_mark)*1000)
