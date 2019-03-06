@@ -1,5 +1,6 @@
-import time
+import os
 import cv2
+import time
 import torch
 
 import posenet
@@ -23,26 +24,52 @@ model.share_memory()
 def getResultPointBox(queue):
     ''' Return good key point of multiple person '''
     global model
+    frame_id = 0
 
     while(True):
         input = queue.get(True)
         time_mark = time.time()
-        heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input[0])
-        print(str(input[1]) + ' - '+ str((time.time() - time_mark)*1000))
+
+        #region Posenet Decode
+        input_image = posenet.process_input(input, TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
+        heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
+        pose_scores, keypoint_scores, keypoint_coords, boxs = decode_multiple_poses(
+                                                            heatmaps_result.squeeze(0),
+                                                            offsets_result.squeeze(0),
+                                                            displacement_fwd_result.squeeze(0),
+                                                            displacement_bwd_result.squeeze(0),
+                                                            OUTPUT_STRIDE,
+                                                            max_pose_detections = 50,
+                                                            score_threshold = THRESHOLD,
+                                                            nms_radius = 50,
+                                                            min_pose_score = THRESHOLD)
+        cv_keypoints = []
+        keypoint_coords[:, :, :] = keypoint_coords[:, :, :]/SCALE_FACTOR
+
+        for ii, score in enumerate(pose_scores):
+            if score < THRESHOLD:
+                continue
+
+            for ks, kc in zip(keypoint_scores[ii, :], keypoint_coords[ii, :, :]):
+                if ks < THRESHOLD:
+                    continue
+                cv_keypoints.append(cv2.KeyPoint(kc[1], kc[0], 10.))
+        #endregion
+
+        # return [cv_keypoints, boxs]
+
+        print('Pose process: ' + str(os.getpid()) + ' - ' + str(frame_id) + ' - ' + str((time.time() - time_mark)*1000))
+        frame_id += 1
+        time.sleep(0.2)
 
 if __name__ == "__main__":
-    mp.set_start_method('spawn')
-    image_queue = mp.Queue()
+    mp.set_start_method('forkserver')
+    image_queue = mp.Queue(maxsize = 30)
 
     with torch.no_grad():
         the_pool = mp.Pool(1, getResultPointBox,(image_queue,))
+        res, draw_image = cap.read()
 
-        for id in range(0, 100):
-            res, draw_image = cap.read()
-            input_image = posenet.process_input(draw_image, TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
-            input_image.share_memory_()
-            image_queue.put([input_image, id])
-            image_queue.put([input_image, id])
-            image_queue.put([input_image, id])
-            image_queue.put([input_image, id])
-            time.sleep(0.5)
+        while(True):
+            print('Main process: ' + str(os.getpid()))
+            image_queue.put(draw_image)
