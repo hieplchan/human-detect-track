@@ -12,7 +12,7 @@ import torch.multiprocessing as mp
 
 
 #Video load for test
-cap = cv2.VideoCapture('/home/hiep/Desktop/Tracking_CCTV/CCTV_Data/Video/1.mp4')
+cap = cv2.VideoCapture('/home/hiep/Desktop/Tracking_CCTV/CCTV_Data/Video/4.mp4')
 
 # Posenet model setting and load
 posenet.MODEL_PATH = '/home/hiep/Desktop/Tracking_CCTV/production/opticalflow_package/posenet/_models/mobilenet_v1_050_gpu.pth'
@@ -27,7 +27,8 @@ def getResultPointBox(queue):
 
     while(True):
         time_mark = time.time()
-        input = queue.get(True)
+        print('Item in queue get: ' + str(queue.qsize()))
+        input = queue.get(block = True)
 
         #region Posenet Decode
         input_image = posenet.process_input(input[0], TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
@@ -56,29 +57,35 @@ def getResultPointBox(queue):
         #endregion
 
         # return [cv_keypoints, boxs]
+        # queue.task_done()
 
         print('Pose process: ' + str(os.getpid()) + ' - ' + str(input[1]) + ' - ' + str((time.time() - time_mark)*1000))
 
 if __name__ == "__main__":
-    mp.set_start_method('forkserver')
-    image_queue = mp.Queue(maxsize = 20)
+    mp.set_start_method('spawn')
+    image_queue = mp.Queue(maxsize = 10)
     frame_id = 0
 
     with torch.no_grad():
-        the_pool = mp.Pool(1, getResultPointBox,(image_queue,))
-        res, draw_image = cap.read()
-
-        # while(True):
-        #     print('Main process: ' + str(os.getpid()))
-        #     image_queue.put([draw_image, frame_id])
-        #     frame_id += 1
-
-        main_time_mark = time.time()
-        for i in range(0, 22):
+        the_pool = mp.Pool(1, getResultPointBox, (image_queue,))
+        while (cap.isOpened()):
             res, draw_image = cap.read()
-            print('Main process: ' + str(os.getpid()))
-            image_queue.put([draw_image, frame_id])
-            print('Item in queue: ' + str(image_queue.qsize()))
-            frame_id += 1
+            if (res != 1):
+                time.sleep(10)
+                break
 
-        print((time.time() - main_time_mark)*1000)
+            # while(True):
+            #     res, draw_image = cap.read()
+            #     print('Main process: ' + str(os.getpid()))
+            #     image_queue.put([draw_image, frame_id])
+            #     print('Item in queue put: ' + str(image_queue.qsize()))
+            #     frame_id += 1
+
+            for i in range(0, 50):
+                res, draw_image = cap.read()
+                print('Main process: ' + str(os.getpid()))
+                image_queue.put(obj = [draw_image, frame_id], block = True)
+                print('Item in queue put: ' + str(image_queue.qsize()))
+                frame_id += 1
+
+            print('----------------------------------Done')
