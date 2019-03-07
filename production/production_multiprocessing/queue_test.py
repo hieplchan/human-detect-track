@@ -11,10 +11,10 @@ import lucas_kanade
 import torch.multiprocessing as mp
 
 #Video load for test
-cap = cv2.VideoCapture('/home/hiep/Desktop/Tracking_CCTV/CCTV_Data/Video/4.mp4')
+cap = cv2.VideoCapture('/media/hiep/DATA/Work_space/Tracking_CCTV/CCTV_Data/Video/4.mp4')
 
 # Posenet model setting and load
-posenet.MODEL_PATH = '/home/hiep/Desktop/Tracking_CCTV/production/opticalflow_package/posenet/_models/mobilenet_v1_050_gpu.pth'
+posenet.MODEL_PATH = '/media/hiep/DATA/Work_space/Tracking_CCTV/production/opticalflow_package/posenet/_models/mobilenet_v1_050_gpu.pth'
 
 def detector_worker(queue):
     ''' Return good key point of multiple person '''
@@ -22,13 +22,13 @@ def detector_worker(queue):
 
     while(True):
         if (queue.empty()):
-            print('Detector Free')
+            # print('Detector Free')
             continue
         print('Item in queue get: ' + str(queue.qsize()))
         input = queue.get(block = True)
 
         time_mark = time.time()
-        
+
         #region Posenet Decode
         input_image = posenet.process_input(input[0], TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
         heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
