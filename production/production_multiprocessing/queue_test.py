@@ -61,7 +61,7 @@ def getResultPointBox(queue):
 
 if __name__ == "__main__":
     mp.set_start_method('forkserver')
-    image_queue = mp.Queue(maxsize = 1)
+    image_queue = mp.Queue(maxsize = 20)
     frame_id = 0
 
     with torch.no_grad():
@@ -74,10 +74,11 @@ if __name__ == "__main__":
         #     frame_id += 1
 
         main_time_mark = time.time()
-        for i in range(0, 100):
+        for i in range(0, 22):
             res, draw_image = cap.read()
             print('Main process: ' + str(os.getpid()))
             image_queue.put([draw_image, frame_id])
+            print('Item in queue: ' + str(image_queue.qsize()))
             frame_id += 1
 
         print((time.time() - main_time_mark)*1000)
