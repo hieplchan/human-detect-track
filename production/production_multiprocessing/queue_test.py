@@ -21,13 +21,14 @@ def detector_worker(queue):
     model = posenet.load(posenet.MODEL_PATH, posenet.OUTPUT_STRIDE, posenet.DEVICE)
 
     while(True):
-        time_mark = time.time()
-        print('Item in queue get: ' + str(queue.qsize()))
         if (queue.empty()):
             print('Detector Free')
             continue
+        print('Item in queue get: ' + str(queue.qsize()))
         input = queue.get(block = True)
 
+        time_mark = time.time()
+        
         #region Posenet Decode
         input_image = posenet.process_input(input[0], TARGET_WIDTH, TARGET_HEIGHT, DEVICE)
         heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
@@ -65,15 +66,14 @@ if __name__ == "__main__":
 
     with torch.no_grad():
         the_pool = mp.Pool(1, detector_worker, (detector_input_queue,))
-        while (cap.isOpened()):
+        while (True):
             res, draw_image = cap.read()
-            if (res != 1):
-                print('Video ended')
-                time.sleep(100)
-                break
 
-            res, draw_image = cap.read()
-            print('Main process: ' + str(os.getpid()))
-            detector_input_queue.put(obj = [draw_image, frame_id], block = True)
-            print('detector_input_queue put size: ' + str(detector_input_queue.qsize()))
-            frame_id += 1
+            if (res != 1):
+                continue
+            else:
+                res, draw_image = cap.read()
+                print('Main process: ' + str(os.getpid()))
+                detector_input_queue.put(obj = [draw_image, frame_id], block = True)
+                print('detector_input_queue put size: ' + str(detector_input_queue.qsize()))
+                frame_id += 1
