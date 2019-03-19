@@ -5,3 +5,4 @@ detection/densepose/
 tracking/optical_flow/optical_flow_tracking/output/
 production/posenet_lucas_kanade/output/
 production/posenet_lucas_kanade/posenet/_models
+Documents/Logo/
