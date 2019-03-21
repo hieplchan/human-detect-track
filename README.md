@@ -29,6 +29,7 @@ conda deactivate
 conda create -n python36_mkl_cpu python=3.6
 source activate python36_mkl_gpu   
 conda install numpy -c intel --no-update-deps
+conda create -n micronet
 ```
 ```
 sudo update-alternatives --config gcc
