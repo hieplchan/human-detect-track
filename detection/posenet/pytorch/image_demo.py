@@ -16,14 +16,16 @@ parser.add_argument('--model', type=int, default=101)
 parser.add_argument('--scale_factor', type=float, default=1.0)
 parser.add_argument('--notxt', action='store_true')
 parser.add_argument('--image_dir', type=str, default='./images')
-parser.add_argument('--output_dir', type=str, default='./output')
+parser.add_argument('--output_dir', type=str, default='./images')
 args = parser.parse_args()
 
 
 def main():
     model = posenet.load_model(args.model)
-    # model = model.cuda()
-    model = model.cpu()
+
+    model = model.cuda()
+    # model = model.cpu()
+
     output_stride = model.output_stride
 
     if args.output_dir:
@@ -33,30 +35,35 @@ def main():
     filenames = [
         f.path for f in os.scandir(args.image_dir) if f.is_file() and f.path.endswith(('.png', '.jpg'))]
 
+
     start = time.time()
-    for f in filenames:
-        input_image, draw_image, output_scale = posenet.read_imgfile(
-            f, scale_factor=args.scale_factor, output_stride=output_stride)
+    # for f in filenames:
+    input_image, draw_image, output_scale = posenet.read_imgfile_pytorch(
+        args.image_dir + '/retail1.jpg', scale_factor=args.scale_factor, output_stride=output_stride)
 
-        with torch.no_grad():
-            # input_image = torch.Tensor(input_image).cuda()
+    print(input_image.shape)
+    input_image = torch.Tensor(input_image).cuda()
+    # input_image = torch.Tensor(input_image).cpu()
 
+    with torch.no_grad():
+        for idx in range(10):
             start_time = datetime.datetime.utcnow().timestamp()
-            input_image = torch.Tensor(input_image).cpu()
             heatmaps_result, offsets_result, displacement_fwd_result, displacement_bwd_result = model(input_image)
             print('image_demo headmap' + str(heatmaps_result.shape))
-            heatmap_mask = heatmap_inspection(heatmaps_result) * 2
-            heatmap_mask[heatmap_mask > 255] = 255
-            gray_heatmap_img = cv2.cvtColor(draw_image, cv2.COLOR_BGR2GRAY)
-            # heatmap_mask = cv2.cvtColor(heatmap_mask, cv2.COLOR_GRAY2BGR)
-            heatmap_mask = heatmap_mask.astype(np.uint8)
-            print('******')
-            print(type(gray_heatmap_img[0][0]))
-            print(type(heatmap_mask[0][0]))
-            test_heatmap = cv2.addWeighted(gray_heatmap_img,1,heatmap_mask,0.8,0)
-            show_image('gray_heatmap_img', test_heatmap)
 
-            model_time = datetime.datetime.utcnow().timestamp()
+            # heatmap_mask = heatmap_inspection(heatmaps_result) * 2
+            # heatmap_mask[heatmap_mask > 255] = 255
+            # gray_heatmap_img = cv2.cvtColor(draw_image, cv2.COLOR_BGR2GRAY)
+            # # heatmap_mask = cv2.cvtColor(heatmap_mask, cv2.COLOR_GRAY2BGR)
+            # heatmap_mask = heatmap_mask.astype(np.uint8)
+            # print('******')
+            # print(type(gray_heatmap_img[0][0]))
+            # print(type(heatmap_mask[0][0]))
+            # # test_heatmap = cv2.addWeighted(gray_heatmap_img,1,heatmap_mask,0.8,0)
+            # # show_image('gray_heatmap_img', test_heatmap)
+            #
+            # model_time = datetime.datetime.utcnow().timestamp()
+            #
 
             pose_scores, keypoint_scores, keypoint_coords = posenet.decode_multiple_poses(
                 heatmaps_result.squeeze(0),
@@ -64,10 +71,8 @@ def main():
                 displacement_fwd_result.squeeze(0),
                 displacement_bwd_result.squeeze(0),
                 output_stride=output_stride,
-                max_pose_detections=10,
-                min_pose_score=0.25)
-
-            decode_time = datetime.datetime.utcnow().timestamp()
+                max_pose_detections=20,
+                min_pose_score=0.1)
 
             # print((model_time - start_time)*1000)
             # print((decode_time - start_time)*1000)
@@ -76,15 +81,19 @@ def main():
             # print(displacement_fwd_result.squeeze(0).shape)
             # print(displacement_bwd_result.squeeze(0).shape)
 
-        keypoint_coords *= output_scale
+            keypoint_coords *= output_scale
 
-        if args.output_dir:
-            draw_image = posenet.draw_skel_and_kp(
-                draw_image, pose_scores, keypoint_scores, keypoint_coords,
-                min_pose_score=0.25, min_part_score=0.25)
+            if args.output_dir:
+                draw_image = posenet.draw_skel_and_kp(
+                    draw_image, pose_scores, keypoint_scores, keypoint_coords,
+                    min_pose_score=0.1, min_part_score=0.1)
 
-            cv2.imwrite(os.path.join(args.output_dir, os.path.relpath(f, args.image_dir)), draw_image)
-            overlay_image = cv2.addWeighted(draw_image,0.6,mask,1,0)
+                cv2.imwrite(args.image_dir + '/test.png', draw_image)
+
+            decode_time = datetime.datetime.utcnow().timestamp()
+            print((decode_time - start_time)*1000)
+
+        #     overlay_image = cv2.addWeighted(draw_image,0.6,mask,1,0)
             # cv2.imshow('result', overlay_image)
             # while(True):
             #     if cv2.waitKey(1) & 0xFF == ord('q'):

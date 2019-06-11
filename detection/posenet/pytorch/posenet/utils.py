@@ -1,5 +1,9 @@
 import cv2
 import numpy as np
+import torch
+import torchvision.transforms as transforms
+from PIL import Image
+import numpy as np
 
 import posenet.constants
 
@@ -14,12 +18,46 @@ def _process_input(source_img, scale_factor=1.0, output_stride=16):
         source_img.shape[1] * scale_factor, source_img.shape[0] * scale_factor, output_stride=output_stride)
     scale = np.array([source_img.shape[0] / target_height, source_img.shape[1] / target_width])
 
+    print(target_width)
+    print(target_height)
     input_img = cv2.resize(source_img, (target_width, target_height), interpolation=cv2.INTER_LINEAR)
     input_img = cv2.cvtColor(input_img, cv2.COLOR_BGR2RGB).astype(np.float32)
     input_img = input_img * (2.0 / 255.0) - 1.0
 
     input_img = input_img.transpose((2, 0, 1)).reshape(1, 3, target_height, target_width)
     return input_img, source_img, scale
+
+def _process_input_pytorch(source_img, scale_factor=1.0, output_stride=16):
+    print('Origin Width: {}, Height: {}'.format(source_img.width, source_img.height))
+    # Size Calculate
+    target_width, target_height = valid_resolution(
+        source_img.width * scale_factor, source_img.height * scale_factor, output_stride=output_stride)
+    scale = np.array([source_img.height / target_height, source_img.width / target_width])
+
+    print('Targer Width: {}, Height: {}'.format(target_width, target_height))
+
+    """
+    Transform Block
+    """
+    # Normalize image = (image - mean) / std
+    r_mean, g_mean, b_mean = (0.5,  0.5, 0.5)
+    r_std, g_std, b_std = (0.5, 0.5, 0.5)
+    normalize = transforms.Normalize(mean=(r_mean, g_mean, b_mean),
+                                     std=(r_std, g_std, b_std))
+    transform = transforms.Compose([
+                transforms.Resize((target_height, target_width)),
+                transforms.ToTensor(),
+                normalize])
+    input_img = transform(source_img)
+    input_tensor = torch.stack([input_img], 0)
+    print('Tensor Image Shape: {}'.format(input_img.shape))
+    source_img = np.array(source_img)
+    source_img = source_img[:, :, ::-1].copy()
+    """
+    End Transform Block
+    """
+
+    return input_tensor, source_img, scale
 
 
 def read_cap(cap, scale_factor=1.0, output_stride=16):
@@ -28,10 +66,20 @@ def read_cap(cap, scale_factor=1.0, output_stride=16):
         raise IOError("webcam failure")
     return _process_input(img, scale_factor, output_stride)
 
+def read_cap_pytorch(cap, scale_factor=1.0, output_stride=16):
+    res, img = cap.read()
+    if not res:
+        raise IOError("webcam failure")
+    return _process_input_pytorch(img, scale_factor, output_stride)
+
 
 def read_imgfile(path, scale_factor=1.0, output_stride=16):
     img = cv2.imread(path)
     return _process_input(img, scale_factor, output_stride)
+
+def read_imgfile_pytorch(path, scale_factor=1.0, output_stride=16):
+    img = Image.open(path)
+    return _process_input_pytorch(img, scale_factor, output_stride)
 
 
 def draw_keypoints(
@@ -120,7 +168,7 @@ def heatmap_inspection(heatmap):
             np_heatmap_mask += np_heatmap[i]
             # show_image(PART_NAMES[i], np_heatmap[i])
         np_heatmap_mask = np_heatmap_mask/np.max(np_heatmap_mask)*255
-        show_image('heatmap scale factor', np_heatmap_mask.astype(np.uint8))
+        # show_image('heatmap scale factor', np_heatmap_mask.astype(np.uint8))
         # print(np.max(np_heatmap_mask))
         # np_heatmap_mask = cv2.resize(np_heatmap_mask, (1920, 1080), interpolation=cv2.INTER_LINEAR)
         # show_image('heatmap', np_heatmap_mask)
