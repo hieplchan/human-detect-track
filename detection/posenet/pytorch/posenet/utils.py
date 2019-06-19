@@ -45,7 +45,7 @@ def _process_input_pytorch(source_img, scale_factor=1.0, output_stride=16):
     normalize = transforms.Normalize(mean=(r_mean, g_mean, b_mean),
                                      std=(r_std, g_std, b_std))
     transform = transforms.Compose([
-                transforms.Resize((target_height, target_width)),
+                transforms.Resize((target_height, target_width), interpolation= Image.BILINEAR), #Image.LANCZOS, Image.NEAREST, Image.BICUBIC, Image.BILINEAR
                 transforms.ToTensor(),
                 normalize])
     input_img = transform(source_img)
@@ -79,6 +79,7 @@ def read_imgfile(path, scale_factor=1.0, output_stride=16):
 
 def read_imgfile_pytorch(path, scale_factor=1.0, output_stride=16):
     img = Image.open(path)
+    img = img.resize((1920, 1080), Image.BILINEAR)
     return _process_input_pytorch(img, scale_factor, output_stride)
 
 
